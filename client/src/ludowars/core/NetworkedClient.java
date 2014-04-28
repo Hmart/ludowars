@@ -11,10 +11,11 @@ import com.esotericsoftware.kryonet.Listener;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import ludowars.controller.PlayerDriver;
+import ludowars.model.EntityData;
 import ludowars.model.State;
 import ludowars.network.Network;
+import ludowars.network.packets.*;
 import ludowars.view.ControlledPlayerRepresentation;
-import ludoserver.core.Core;
 
 /**
  *
@@ -48,14 +49,22 @@ public class NetworkedClient extends Client {
         Object o;
         
         while ((o = clientMessageQueue.poll()) != null) {
-            if (o instanceof Network.GameState) {
-                Network.GameState gs = (Network.GameState)o;
-                S = gs.state;
-                S.init();
+            if (o instanceof MovePacket) {
+                MovePacket mp = (MovePacket)o;
+                Entity e = S.entityManager.getEntity(mp.entityID);
+                
+                if(e != null){
+                    EntityData temp = e.getData();
+                    temp.id = mp.entityID;
+                    temp.position.x = mp.x;
+                    temp.position.y = mp.y;               
+                    e.driverStateQueue.add(mp.driverstate);
+                }
+                
             }
-            else if (o instanceof Network.AssignEntity) {
-                Network.AssignEntity ae = (Network.AssignEntity)o;
-                S.localPlayer = S.entityManager.getEntity(ae.id);
+            else if (o instanceof AssignPacket) {
+                AssignPacket ap = (AssignPacket)o;
+                S.localPlayer = S.entityManager.getEntity(ap.id);
                 S.localPlayer.setDriver(new PlayerDriver());
                 S.localPlayer.setRepresentation(new ControlledPlayerRepresentation());
             }
@@ -92,19 +101,6 @@ public class NetworkedClient extends Client {
         return S;
     }
     
-    private void startLocalServer() {
-            new Thread("Server") {
-                public void run() {
-                    try {
-                        new ludoserver.core.Core();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }.start();
-    }
     
     private boolean connectToServer() {
         try {
