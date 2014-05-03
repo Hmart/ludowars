@@ -1,0 +1,73 @@
+-module(ludo_proto).
+-compile(export_all).
+
+parseEntity(0,_,Acc) ->
+    Acc;
+
+parseEntity(EntityCount, EntityList, Acc) ->
+    <<ID:(8*4), ControllerClassName:(8*256), RepresentationClassName:(8*256), DriverClassName:(8*256), X:(8*4)/float, Y:(8*4)/float, VelocityX:(8*4)/float, VelocityY:(8*4)/float, Angle:(8*4)/float, Width:(8*4), Height:(8*4), EntityRest/bits>> = EntityList, 
+    EntityElement = {ID, ControllerClassName, RepresentationClassName, DriverClassName, X, Y, VelocityX, VelocityY, Angle, Width, Height},  
+    parseEntity(EntityCount-1, EntityRest, [EntityElement|Acc]).
+ 
+
+parser(<<PacketID:(8*1)/signed, Payload/bits>>) ->
+    parser(PacketID, Payload).
+
+parser(1, Payload)->
+    <<EntityID:(8*4), X:(8*4)/float, Y:(8*4)/float, North:(8*1), South:(8*1), West:(8*1), East:(8*1), Fire:(8*1), Secondary:(8*1), MouseX:(8*4)/float, MouseY:(8*4)/float>> = Payload,
+    {movePacket, EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY};
+
+parser(2, Payload) ->
+    <<EntityID:(8*4)>> = Payload,
+    {assignEntityPacket, EntityID};
+
+parser(3, Payload) -> 
+    <<X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, EntityCount:(8*2), EntityList/bits>> = Payload,
+    {statePacket, X, Y, Width, Height, parseEntity(EntityCount, EntityList, [])}. 
+
+
+composeEntity([],Acc)->
+    Acc;
+
+composeEntity([{ID, ControllerClassName, RepresentationClassName, DriverClassName, X, Y, VelocityX, VelocityY, Angle, Width, Height} | EntityList], Acc) ->
+   EntityElement =  <<ID:(8*4), ControllerClassName:(8*256), RepresentationClassName:(8*256), DriverClassName:(8*256), X:(8*4)/float, Y:(8*4)/float, VelocityX:(8*4)/float, VelocityY:(8*4)/float, Angle:(8*4)/float, Width:(8*4), Height:(8*4)>>,
+    composeEntity(EntityList, [EntityElement|Acc]).
+
+	
+compose({movePacket, EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY}) ->
+    <<EntityID:(8*4), X:(8*4)/float, Y:(8*4)/float, North:(8*1), South:(8*1), West:(8*1), East:(8*1), Fire:(8*1), Secondary:(8*1), MouseX:(8*4)/float, MouseY:(8*4)/float>>;
+
+compose({assignEntityPacket, EntityID}) ->
+    <<EntityID:(8*4)>>;
+
+compose({statePacket, X, Y, Width, Height, EntityList}) ->
+    Temp = composeEntity(EntityList,[]),
+    [<<X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, (length(Temp)):(8*2)>>, Temp].
+
+
+
+
+testparser1()->
+    Payload1 = <<1:(8*4), 2:(8*4)/float, 3:(8*4)/float, 4:(8*1), 5:(8*1), 6:(8*1), 7:(8*1), 8:(8*1), 9:(8*1), 10:(8*4)/float, 11:(8*4)/float>>,
+    io:format("~p ~n", [parser(1, Payload1)]),
+    Payload1 == compose(parser(1, Payload1)).
+    
+testparser2() ->
+    Payload2 = <<1:(8*4)>>,
+    io:format("~p ~n", [parser(2, Payload2)]),
+    Payload2 == compose(parser(2, Payload2)).
+    
+testparser3() ->
+    Payload3 = <<1:(8*16), 0:(8*2) >>,
+    io:format("~p ~n", [Payload3]),
+    io:format("~p ~n", [iolist_to_binary(compose(parser(3, Payload3)))]),
+    Payload3 == iolist_to_binary(compose(parser(3, Payload3))).
+	
+
+
+
+
+
+
+       
+
