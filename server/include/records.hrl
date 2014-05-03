@@ -1,0 +1,4 @@
+-record(client, {
+	state,
+	socket
+}).

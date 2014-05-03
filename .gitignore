@@ -35,3 +35,11 @@ Thumbs.db
 /server/nbproject/private/
 /maven-client/target/
 /tmp/mludwig-entreri-86ccda81dbdd/target/
+
+# Erlang
+.eunit
+deps
+*.o
+*.beam
+*.plt
+erl_crash.dump
