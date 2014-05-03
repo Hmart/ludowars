@@ -30,7 +30,10 @@ composeEntity([],Acc)->
     Acc;
 
 composeEntity([{ID, ControllerClassName, RepresentationClassName, DriverClassName, X, Y, VelocityX, VelocityY, Angle, Width, Height} | EntityList], Acc) ->
-   EntityElement =  <<ID:(8*4), ControllerClassName:(8*256), RepresentationClassName:(8*256), DriverClassName:(8*256), X:(8*4)/float, Y:(8*4)/float, VelocityX:(8*4)/float, VelocityY:(8*4)/float, Angle:(8*4)/float, Width:(8*4), Height:(8*4)>>,
+    ControllerClassNameString = list_to_binary(string:left(ControllerClassName, 256, $0)),
+    RepresentationClassNameString = list_to_binary(string:left(RepresentationClassName, 256, $0)),
+    DriverClassNameString = list_to_binary(string:left(DriverClassName, 256, $0)),
+    EntityElement =  <<ID:(8*4), ControllerClassNameString/binary, RepresentationClassNameString/binary, DriverClassNameString/binary, X:(8*4)/float, Y:(8*4)/float, VelocityX:(8*4)/float, VelocityY:(8*4)/float, Angle:(8*4)/float, Width:(8*4), Height:(8*4)>>,
     composeEntity(EntityList, [EntityElement|Acc]).
 
 	

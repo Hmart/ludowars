@@ -3,5 +3,5 @@
 	{registered, [ludo]},
 	{mod, {ludo_app, []}},
 	{env, [{port, 7331}]},
-	{modules, [ludo_app, ludo_game_serv, ludo_game_sup, ludo_sup]}
+	{modules, [ludo_app, ludo_game_serv, ludo_game_sup, ludo_sup, ludo_proto]}
 ]}.
