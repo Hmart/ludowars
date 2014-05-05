@@ -10,24 +10,33 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoSerializable;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author hannesmartinsson
  */
-public class AssignPacket implements KryoSerializable{
+public class AssignPacket extends Packet {
     public int id;
 
     @Override
-    public void write(Kryo kryo, Output output) {
+    public void write(Output output) {
         output.writeInt(id);
     }
 
     @Override
-    public void read(Kryo kryo, Input input) {
+    public void read(Input input) {
+        try {
+            System.out.println("HELLO!!!!!!!!!!!!! " + input.available());
+            while (input.available() > 0) {
+                System.out.println("HELLO: " + String.format("%x", input.readByte()));
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
         id = input.readInt();
-        
     }
-    
-    
 }

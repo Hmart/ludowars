@@ -32,6 +32,7 @@ public class NetworkedClient {
         clientMessageQueue = new ConcurrentLinkedQueue<Object>();
         client = new NetworkChannel();
         client.register(3, StatePacket.class);
+        client.register(2, AssignPacket.class);
         
         client.setHandler(new NetworkChannelHandler() {
             @Override
@@ -51,10 +52,17 @@ public class NetworkedClient {
         Object o;
         
         while ((o = clientMessageQueue.poll()) != null) {
-            if(o instanceof StatePacket){
+            if(o instanceof StatePacket) {
                 StatePacket p = (StatePacket)o;
                 S = p.s;
                 System.out.println("entity count: " + p.s.entityManager.getCount());
+            }
+            else if (o instanceof AssignPacket) {
+                AssignPacket ap = (AssignPacket)o;
+                System.out.println(ap.id);
+                S.localPlayer = S.entityManager.getEntity(ap.id);
+                S.localPlayer.setDriver(new PlayerDriver());
+                S.localPlayer.setRepresentation(new ControlledPlayerRepresentation());
             }
                
                 
