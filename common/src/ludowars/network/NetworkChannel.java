@@ -110,7 +110,7 @@ public class NetworkChannel {
                 Class cls = packets.get(currentPacket);
                 Packet p = (Packet)cls.getConstructor().newInstance();
                 Input i = new Input(inputBuffer.array());
-                i.setPosition(inputBuffer.position());
+                i.setPosition(inputBuffer.position() + inputBuffer.arrayOffset());
                 p.read(i);
                 handler.received(p);
                 inputBuffer.position(inputBuffer.position() + packetLength);
@@ -120,7 +120,7 @@ public class NetworkChannel {
             
             inputBuffer.compact();
         } catch (IOException ie) {
-            System.out.println("write exception");
+            System.out.println("read exception");
         } catch (Throwable ex) {
             Logger.getLogger(NetworkChannel.class.getName()).log(Level.SEVERE, null, ex);
         }
