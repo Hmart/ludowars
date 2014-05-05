@@ -20,7 +20,7 @@ handle_call(_, _, S) ->
 handle_cast(accept_connection, Client = #client{socket=ListenSocket}) ->
 	{ok, AcceptSocket} = gen_tcp:accept(ListenSocket),
 	ludo_game_sup:start_socket(), % a new acceptor is born, praise the lord
-	ludo_proto:compose({statePacket,
+	gen_tcp:send(AcceptSocket, ludo_proto:compose({statePacket,
 		0.0, %% world boundaries: x
 		0.0, %% world boundaries: y
 		500.0, %% world boundaries: width
@@ -40,7 +40,7 @@ handle_cast(accept_connection, Client = #client{socket=ListenSocket}) ->
 				10 %% height
 			}
 		]
-	}),
+	})),
 	{noreply, Client#client{socket=AcceptSocket, state=handshake}}.
 
 handle_info({tcp_closed, _Socket}, S) ->
