@@ -38,14 +38,14 @@ composeEntity([{ID, ControllerClassName, RepresentationClassName, DriverClassNam
 
 	
 compose({movePacket, EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY}) ->
-    <<EntityID:(8*4), X:(8*4)/float, Y:(8*4)/float, North:(8*1), South:(8*1), West:(8*1), East:(8*1), Fire:(8*1), Secondary:(8*1), MouseX:(8*4)/float, MouseY:(8*4)/float>>;
+    <<1:8, EntityID:(8*4), X:(8*4)/float, Y:(8*4)/float, North:(8*1), South:(8*1), West:(8*1), East:(8*1), Fire:(8*1), Secondary:(8*1), MouseX:(8*4)/float, MouseY:(8*4)/float>>;
 
 compose({assignEntityPacket, EntityID}) ->
-    <<EntityID:(8*4)>>;
+    <<2:8, EntityID:(8*4)>>;
 
 compose({statePacket, X, Y, Width, Height, EntityList}) ->
     Temp = composeEntity(EntityList,[]),
-    [<<X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, (length(Temp)):(8*2)>>, Temp].
+    [<<3:8, X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, (length(Temp)):(8*2)>>, Temp].
 
 
 
