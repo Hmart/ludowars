@@ -41,6 +41,27 @@ handle_cast(accept_connection, Client = #client{socket=ListenSocket}) ->
 			}
 		]
 	})),
+	gen_tcp:send(AcceptSocket, ludo_proto:compose({statePacket,
+		0.0, %% world boundaries: x
+		0.0, %% world boundaries: y
+		500.0, %% world boundaries: width
+		500.0, %% world boundaries: width
+		[
+			{
+				1, %% entity id
+				"ludowars.controller.PlayerController", %% controller name
+				"ludowars.view.PlayerRepresentation", %% representation name
+				"ludowars.controller.EntityDriver", %% driver name
+				356.0, %% X
+				356.0, %% Y
+				0.0, %% velocity X
+				0.0, %% velocity Y
+				0.0, %% angle
+				16, %% width
+				10 %% height
+			}
+		]
+	})),
 	{noreply, Client#client{socket=AcceptSocket, state=handshake}}.
 
 handle_info({tcp_closed, _Socket}, S) ->

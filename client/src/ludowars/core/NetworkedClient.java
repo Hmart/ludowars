@@ -51,16 +51,11 @@ public class NetworkedClient {
         Object o;
         
         while ((o = clientMessageQueue.poll()) != null) {
-        /*    if(o instanceof StatePacket){
-                StatePacket sp = (StatePacket)o;
-                S.entities = sp.s.entities;
-                S.entityManager = sp.s.entityManager;
-                S.localPlayer = sp.s.localPlayer;
-                S.map = sp.s.map;
-                S.worldBounds = sp.s.worldBounds;
-            
+            if(o instanceof StatePacket){
+                StatePacket p = (StatePacket)o;
+                S = p.s;
+                System.out.println("entity count: " + p.s.entityManager.getCount());
             }
-            */    
                
                 
                 

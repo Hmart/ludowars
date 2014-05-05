@@ -90,7 +90,7 @@ public class EntityManager {
             c = (EntityController)Class.forName(data.controller).newInstance(); 
             d = (EntityDriver)(data.driver == null || data.driver.isEmpty() ? null : Class.forName(data.driver).newInstance());
         } catch(ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            System.err.println("Creating an entity from data: " + e.getMessage());
+            System.err.println("Error occured while creating an entity from data: " + e.getMessage());
             return null;
         }
         

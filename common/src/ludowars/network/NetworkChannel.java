@@ -81,7 +81,7 @@ public class NetworkChannel {
             int bytesRead = channel.read(inputBuffer);
             inputBuffer.flip();
             
-            System.out.println("Inputbuffer: " + inputBuffer);
+            //System.out.println("Inputbuffer: " + inputBuffer);
                         
             if (bytesRead == -1) {
                 System.out.println("the connection has been closed.");
@@ -89,7 +89,7 @@ public class NetworkChannel {
             }
             
             if (inputBuffer.remaining() == 0) {
-                System.out.println("Nothing to read.");
+                //System.out.println("Nothing to read.");
                 return;
             }
             
@@ -104,22 +104,18 @@ public class NetworkChannel {
                 
                 System.out.println("CurrentPacket: " + currentPacket);
                 System.out.println("PacketLength: " + packetLength);
+                System.out.println("remaining: " + inputBuffer.remaining());
             }
             
-            if (inputBuffer.remaining() == packetLength) {
+            if (inputBuffer.remaining() >= packetLength) {
                 // packet ready to be parsed
                 Class cls = packets.get(currentPacket);
                 Packet p = (Packet)cls.getConstructor().newInstance();
-                byte[] b = new byte [inputBuffer.remaining()];
-                inputBuffer.get(b, 0, b.length);
-                System.out.println("hello this is my packet: " + new String(b));
-                Input i = new Input();
-                i.setBuffer(b);
-                
-                System.out.print("i length " + i.available() + ", byte length " + i.getBuffer().length + ", b length: " + b.length);
+                Input i = new Input(inputBuffer.array());
+                i.setPosition(inputBuffer.position());
                 p.read(i);
                 handler.received(p);
-                inputBuffer.reset();
+                inputBuffer.compact();
             }
             inputBuffer.flip();
             

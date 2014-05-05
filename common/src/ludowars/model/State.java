@@ -47,7 +47,7 @@ public class State implements java.io.Serializable {
     }
     
     public State() {
-        
+        load();
     }
     
     public void load() {
@@ -60,41 +60,41 @@ public class State implements java.io.Serializable {
         worldBounds = new Rectangle(0, 0, mapWidth, mapHeight);
         entityManager = new EntityManager(new Rectangle(0, 0, mapSize, mapSize));
        
-        CharacterData cool = new CharacterData(new Vector2(356f, 356f), 250, 10);
-        cool.width = 16;
-        cool.height = 10;
-        cool.controller = "ludowars.controller.PlayerController";
-        cool.driver = "ludowars.controller.EntityDriver";
-        cool.representation = "ludowars.view.PlayerRepresentation";
-        Entity e = entityManager.createEntity(cool);
+//        CharacterData cool = new CharacterData(new Vector2(356f, 356f), 250, 10);
+//        cool.width = 16;
+//        cool.height = 10;
+//        cool.controller = "ludowars.controller.PlayerController";
+//        cool.driver = "ludowars.controller.EntityDriver";
+//        cool.representation = "ludowars.view.PlayerRepresentation";
+//        Entity e = entityManager.createEntity(cool);
+//        
+//        for (int i = 0; i < 20; i++) {
+//            EntityData d = new EntityData();
+//            d.position.x = MathUtils.random(10, worldBounds.width - 10);
+//            d.position.y = MathUtils.random(10, worldBounds.height - 10);
+//            d.width = 18;
+//            d.height = 16;
+//            d.controller = "ludowars.controller.HealthPickupController";
+//            d.representation = "ludowars.view.HealthPickupRepresentation";
+//            entityManager.createEntity(d);
+//        }
         
-        for (int i = 0; i < 20; i++) {
-            EntityData d = new EntityData();
-            d.position.x = MathUtils.random(10, worldBounds.width - 10);
-            d.position.y = MathUtils.random(10, worldBounds.height - 10);
-            d.width = 18;
-            d.height = 16;
-            d.controller = "ludowars.controller.HealthPickupController";
-            d.representation = "ludowars.view.HealthPickupRepresentation";
-            entityManager.createEntity(d);
-        }
-        
-        // map colliders
-        Iterator it = map.getLayers().get("Colliders").getObjects().iterator();
-        while(it.hasNext()) {
-            RectangleMapObject o = (RectangleMapObject)it.next();
-
-            EntityData d = new EntityData();
-            d.position.x = o.getProperties().get("x", Integer.class);
-            d.position.y = o.getProperties().get("y", Integer.class);
-            d.width = (int)o.getRectangle().width;
-            d.height = (int)o.getRectangle().height;
-            d.controller = "ludowars.controller.EntityController";
-            d.representation = "ludowars.view.NullRepresentation";
-
-            Entity entity = entityManager.createEntity(d);
-            entity.setFlag(Entity.ENTITY_COLLIDABLE);
-        }
+//        // map colliders
+//        Iterator it = map.getLayers().get("Colliders").getObjects().iterator();
+//        while(it.hasNext()) {
+//            RectangleMapObject o = (RectangleMapObject)it.next();
+//
+//            EntityData d = new EntityData();
+//            d.position.x = o.getProperties().get("x", Integer.class);
+//            d.position.y = o.getProperties().get("y", Integer.class);
+//            d.width = (int)o.getRectangle().width;
+//            d.height = (int)o.getRectangle().height;
+//            d.controller = "ludowars.controller.EntityController";
+//            d.representation = "ludowars.view.NullRepresentation";
+//
+//            Entity entity = entityManager.createEntity(d);
+//            entity.setFlag(Entity.ENTITY_COLLIDABLE);
+//        }
     }
     
     public byte[] save() {

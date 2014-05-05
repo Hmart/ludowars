@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ludowars.core.Entity;
+import ludowars.model.CharacterData;
 import ludowars.model.EntityData;
 import ludowars.model.State;
 
@@ -24,6 +25,10 @@ import ludowars.model.State;
 public class StatePacket extends Packet {
 
     public State s;
+
+    public StatePacket() {
+        s = new State();
+    }
 
     @Override
     public void write(Output output) {
@@ -53,24 +58,24 @@ public class StatePacket extends Packet {
 
     @Override
     public void read(Input input) {
-        try {
-            System.out.println("Input length" + input.available());
-        } catch (IOException ex) {
-            Logger.getLogger(StatePacket.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        System.out.println("Input limit: " + input.limit());
+        System.out.println("Input position: " + input.position());
+
         s.worldBounds.x = input.readFloat();
         s.worldBounds.y = input.readFloat();
         s.worldBounds.width = input.readFloat();
         s.worldBounds.height = input.readFloat();
 
         short entityCount = input.readShort();
+        
+        System.out.println("entityCount: " + entityCount);
 
         for (int i = 0; i < entityCount; i++) {
-            EntityData ed = new EntityData();
+            CharacterData ed = new CharacterData();
             ed.id = input.readInt();
-            ed.controller = input.readString();
-            ed.representation = input.readString();
-            ed.driver = input.readString();
+            ed.controller = new String(input.readBytes(256)).trim();
+            ed.representation = new String(input.readBytes(256)).trim();
+            ed.driver = new String(input.readBytes(256)).trim();
             ed.position.x = input.readFloat();
             ed.position.y = input.readFloat();
             ed.velocity.x = input.readFloat();
