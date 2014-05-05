@@ -36,6 +36,7 @@ public class MovePacket implements KryoSerializable{
         output.writeBoolean(driverstate.fireSecondary);
         output.writeFloat(driverstate.mousePosition.x);
         output.writeFloat(driverstate.mousePosition.y);
+        output.close();
     }
 
     @Override
@@ -50,7 +51,8 @@ public class MovePacket implements KryoSerializable{
         driverstate.fire = input.readBoolean();
         driverstate.fireSecondary = input.readBoolean();
         driverstate.mousePosition.x = input.readFloat();
-        driverstate.mousePosition.y = input.readFloat();       
+        driverstate.mousePosition.y = input.readFloat();  
+        input.close();
     }
     
 }

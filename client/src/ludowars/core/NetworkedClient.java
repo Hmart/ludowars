@@ -14,6 +14,8 @@ import ludowars.controller.PlayerDriver;
 import ludowars.model.EntityData;
 import ludowars.model.State;
 import ludowars.network.Network;
+import ludowars.network.NetworkChannel;
+import ludowars.network.NetworkChannelHandler;
 import ludowars.network.packets.*;
 import ludowars.view.ControlledPlayerRepresentation;
 
@@ -21,26 +23,23 @@ import ludowars.view.ControlledPlayerRepresentation;
  *
  * @author kjagiello
  */
-public class NetworkedClient extends Client {
+public class NetworkedClient {
 
     public ConcurrentLinkedQueue<Object> clientMessageQueue;
-    public Client client;
+    public NetworkChannel client;
 
-    public NetworkedClient() {
-        super(16384, 16384);
-        
+    public NetworkedClient() {        
         clientMessageQueue = new ConcurrentLinkedQueue<Object>();
-        client = this;
         
-        addListener(new Listener() {
+        client.setHandler(new NetworkChannelHandler() {
             @Override
-            public void connected(Connection connection) {
-                connection.sendTCP(new Network.Connected());
+            public void connected() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
             @Override
-            public void received(Connection c, Object object) {
-                clientMessageQueue.add(object);
+            public void received(Packet p) {
+                clientMessageQueue.add(p);
             }
         });
     }
@@ -49,7 +48,7 @@ public class NetworkedClient extends Client {
         Object o;
         
         while ((o = clientMessageQueue.poll()) != null) {
-            if (o instanceof MovePacket) {
+            /*if (o instanceof MovePacket) {
                 MovePacket mp = (MovePacket)o;
                 Entity e = S.entityManager.getEntity(mp.entityID);
                 
@@ -88,14 +87,14 @@ public class NetworkedClient extends Client {
                     System.out.println(e.driverStateQueue.size());
                     e.driverStateQueue.add(cmd.driverState);
                 }
-            }
+            }*/
         }
         
         if (S.localPlayer != null) {
-            Network.UserCommand cmd = new Network.UserCommand();
+            /*Network.UserCommand cmd = new Network.UserCommand();
             cmd.id = S.localPlayer.getID();
             cmd.driverState = S.localPlayer.getDriver().state;
-            sendTCP(cmd);
+            sendTCP(cmd);*/
         }
         
         return S;
@@ -103,24 +102,25 @@ public class NetworkedClient extends Client {
     
     
     private boolean connectToServer() {
-        try {
-            client.connect(5000, "localhost", Network.port);
+        //try {
+            //client.connect(5000, "localhost", Network.port);
+            client.connect("localhost", 7331);
             return true;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        //} catch (IOException ex) {
+        //    ex.printStackTrace();
+        //}
         
-        return false;
+        //return false;
     }
     
     public void connect() {
-        new Thread("Connect") {
+        /*new Thread("Connect") {
             public void run() {
                 if (!connectToServer()) {
                     startLocalServer();
                     while (!connectToServer()) {}
                 }
             }
-        }.start();
+        }.start();*/
     }
 }

@@ -18,12 +18,12 @@ import ludowars.model.State;
  *
  * @author hannesmartinsson
  */
-public class StatePacket implements KryoSerializable {
+public class StatePacket extends Packet {
 
     public State s;
 
     @Override
-    public void write(Kryo kryo, Output output) {
+    public void write(Output output) {
         output.writeFloat(s.worldBounds.x);
         output.writeFloat(s.worldBounds.y);
         output.writeFloat(s.worldBounds.width);
@@ -49,7 +49,7 @@ public class StatePacket implements KryoSerializable {
     }
 
     @Override
-    public void read(Kryo kryo, Input input) {
+    public void read(Input input) {
         s.worldBounds.x = input.readFloat();
         s.worldBounds.y = input.readFloat();
         s.worldBounds.width = input.readFloat();
