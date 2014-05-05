@@ -9,7 +9,10 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoSerializable;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import java.io.IOException;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ludowars.core.Entity;
 import ludowars.model.EntityData;
 import ludowars.model.State;
@@ -50,6 +53,11 @@ public class StatePacket extends Packet {
 
     @Override
     public void read(Input input) {
+        try {
+            System.out.println("Input length" + input.available());
+        } catch (IOException ex) {
+            Logger.getLogger(StatePacket.class.getName()).log(Level.SEVERE, null, ex);
+        }
         s.worldBounds.x = input.readFloat();
         s.worldBounds.y = input.readFloat();
         s.worldBounds.width = input.readFloat();

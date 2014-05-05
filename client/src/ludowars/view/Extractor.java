@@ -41,12 +41,9 @@ public class Extractor {
     private OrthogonalTiledMapRenderer mapRenderer;
 
     public Extractor() {
-        ss = new SpriteSheet(new Texture(Gdx.files.internal("assets/images/tilea4.png")), tileSize, tileSize);
         batch = new SpriteBatch();
         sr = new ShapeRenderer();
-        
-        TextureRegion r = ss.grabSprite(11, 5);
-        
+               
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
@@ -63,7 +60,7 @@ public class Extractor {
         sr.setProjectionMatrix(camera.combined);
 
         // let's roll ol ol ol
-        createBackdrop(S, batch, ss);
+        createBackdrop(S, batch);
         
         batch.begin();
         // for quadtree debug purposes
@@ -108,7 +105,7 @@ public class Extractor {
         return camera;
     }
 
-    private void createBackdrop(State S, SpriteBatch batch, SpriteSheet ss) {
+    private void createBackdrop(State S, SpriteBatch batch) {
         if (mapRenderer == null) {
             // setup map renderer
             float unitScale = 1 / 1f;

@@ -52,8 +52,8 @@ public class GameLayer extends Layer {
         
         //Log.set(Log.LEVEL_DEBUG);
         N = new NetworkedClient();
-        N.start();
-        Network.register(N);
+        //N.connectT();
+        //Network.register(N);
         N.connect();
     }
     
@@ -105,6 +105,6 @@ public class GameLayer extends Layer {
 
     @Override
     public void update(State S) {
-        
+        N.tick();
     }
 }

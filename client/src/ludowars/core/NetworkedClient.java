@@ -30,6 +30,8 @@ public class NetworkedClient {
 
     public NetworkedClient() {        
         clientMessageQueue = new ConcurrentLinkedQueue<Object>();
+        client = new NetworkChannel();
+        client.register(3, StatePacket.class);
         
         client.setHandler(new NetworkChannelHandler() {
             @Override
@@ -39,6 +41,7 @@ public class NetworkedClient {
 
             @Override
             public void received(Packet p) {
+                System.out.println(p);
                 clientMessageQueue.add(p);
             }
         });
@@ -48,6 +51,21 @@ public class NetworkedClient {
         Object o;
         
         while ((o = clientMessageQueue.poll()) != null) {
+        /*    if(o instanceof StatePacket){
+                StatePacket sp = (StatePacket)o;
+                S.entities = sp.s.entities;
+                S.entityManager = sp.s.entityManager;
+                S.localPlayer = sp.s.localPlayer;
+                S.map = sp.s.map;
+                S.worldBounds = sp.s.worldBounds;
+            
+            }
+            */    
+               
+                
+                
+            
+            
             /*if (o instanceof MovePacket) {
                 MovePacket mp = (MovePacket)o;
                 Entity e = S.entityManager.getEntity(mp.entityID);
@@ -114,6 +132,7 @@ public class NetworkedClient {
     }
     
     public void connect() {
+        client.connect("localhost", 7331);
         /*new Thread("Connect") {
             public void run() {
                 if (!connectToServer()) {
@@ -122,5 +141,10 @@ public class NetworkedClient {
                 }
             }
         }.start();*/
+    }
+    public void tick(){
+        
+        client.read();
+    
     }
 }
