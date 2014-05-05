@@ -36,19 +36,21 @@ composeEntity([{ID, ControllerClassName, RepresentationClassName, DriverClassNam
     EntityElement =  <<ID:(8*4), ControllerClassNameString/binary, RepresentationClassNameString/binary, DriverClassNameString/binary, X:(8*4)/float, Y:(8*4)/float, VelocityX:(8*4)/float, VelocityY:(8*4)/float, Angle:(8*4)/float, Width:(8*4), Height:(8*4)>>,
     composeEntity(EntityList, [EntityElement|Acc]).
 
-	
+composePacket(ID, Payload) ->
+    BinaryPayload = iolist_to_binary(Payload),
+    PayloadSize = round(bit_size(BinaryPayload) / 8),
+    io:format("PayloadSize: ~p~n", [PayloadSize]),
+    [<<ID:8, PayloadSize:(8*4)>>, Payload].
+
 compose({movePacket, EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY}) ->
-    <<1:8, EntityID:(8*4), X:(8*4)/float, Y:(8*4)/float, North:(8*1), South:(8*1), West:(8*1), East:(8*1), Fire:(8*1), Secondary:(8*1), MouseX:(8*4)/float, MouseY:(8*4)/float>>;
+    composePacket(1, <<EntityID:(8*4), X:(8*4)/float, Y:(8*4)/float, North:(8*1), South:(8*1), West:(8*1), East:(8*1), Fire:(8*1), Secondary:(8*1), MouseX:(8*4)/float, MouseY:(8*4)/float>>);
 
 compose({assignEntityPacket, EntityID}) ->
-    <<2:8, EntityID:(8*4)>>;
+    composePacket(2, <<EntityID:(8*4)>>);
 
 compose({statePacket, X, Y, Width, Height, EntityList}) ->
     Temp = composeEntity(EntityList,[]),
-    [<<3:8, X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, (length(Temp)):(8*2)>>, Temp].
-
-
-
+    composePacket(3, [<<X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, (length(Temp)):(8*2)>>, Temp]).
 
 testparser1()->
     Payload1 = <<1:(8*4), 2:(8*4)/float, 3:(8*4)/float, 4:(8*1), 5:(8*1), 6:(8*1), 7:(8*1), 8:(8*1), 9:(8*1), 10:(8*4)/float, 11:(8*4)/float>>,
