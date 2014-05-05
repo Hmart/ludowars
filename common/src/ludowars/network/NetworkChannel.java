@@ -38,8 +38,6 @@ public class NetworkChannel {
         input = new Input();
         output = new Output();
         inputBuffer = ByteBuffer.allocate(64 * 1024);
-        
-        input.setLimit(64 * 1024);
     }
     
     public void setHandler(NetworkChannelHandler _handler) {
@@ -89,7 +87,7 @@ public class NetworkChannel {
             }
             
             if (inputBuffer.remaining() == 0) {
-                //System.out.println("Nothing to read.");
+                // System.out.println("Nothing to read.");
                 return;
             }
             
@@ -115,10 +113,12 @@ public class NetworkChannel {
                 i.setPosition(inputBuffer.position());
                 p.read(i);
                 handler.received(p);
-                inputBuffer.compact();
+                inputBuffer.position(inputBuffer.position() + packetLength);
+                inputBuffer = inputBuffer.slice();
+                currentPacket = -1;
             }
-            inputBuffer.flip();
             
+            inputBuffer.compact();
         } catch (IOException ie) {
             System.out.println("write exception");
         } catch (Throwable ex) {
