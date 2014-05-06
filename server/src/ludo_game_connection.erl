@@ -1,25 +1,27 @@
--module(ludo_game_serv).
+-module(ludo_game_connection).
 -behaviour(gen_server).
 
 -include("include/records.hrl").
  
--export([start_link/1]).
+-export([start_link/2]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
-start_link(Socket) ->
-	gen_server:start_link(?MODULE, Socket, []).
+start_link(Socket, GameSupPID) ->
+	gen_server:start_link(?MODULE, [Socket, GameSupPID], []).
  
-init(Socket) ->
+init([Socket, GameSupPID]) ->
 	gen_server:cast(self(), accept_connection),
-	{ok, #client{socket=Socket}}.
+	{ok, #client{socket=Socket, gameSupPID=GameSupPID}}.
 
 %% We never need you, handle_call!
 handle_call(_, _, S) ->
 	{noreply, S}.
 
-handle_cast(accept_connection, Client = #client{socket=ListenSocket}) ->
+handle_cast(accept_connection, Client = #client{socket=ListenSocket, gameSupPID=GameSupPID}) ->
 	{ok, AcceptSocket} = gen_tcp:accept(ListenSocket),
-	ludo_game_sup:start_socket(), % a new acceptor is born, praise the lord
+	%%ludo_game_sup:start_socket(), % a new acceptor is born, praise the lord
+	GameSupPID ! "tjena",
+	io:format("hello gamesuppid ~p~n", [GameSupPID]),
 	gen_tcp:send(AcceptSocket, ludo_proto:compose({statePacket,
 		0.0, %% world boundaries: x
 		0.0, %% world boundaries: y

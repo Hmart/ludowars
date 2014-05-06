@@ -1,4 +1,6 @@
 -record(client, {
+	id,
 	state,
-	socket
+	socket,
+	gameSupPID
 }).
