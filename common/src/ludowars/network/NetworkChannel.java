@@ -66,8 +66,12 @@ public class NetworkChannel {
         }
     }
 
-    private void write(ByteBuffer buffer) {
+    private void write(Packet packet) {
         try {
+            ByteBuffer buffer = ByteBuffer.allocate(8 * 1024);
+            output.clear();
+            packet.write(output);
+            buffer.put(output.toBytes());
             channel.write(buffer);
         } catch (IOException ie) {
             System.out.println("write exception");
