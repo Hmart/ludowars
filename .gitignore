@@ -2,7 +2,7 @@
 dist/
 build/
  
-#netbeans specific
+# netbeans specific
 client/core
 client/nbproject/*
 !client/nbproject/project.properties
@@ -18,10 +18,10 @@ server/nbproject/*
 !server/nbproject/project.properties
 !server/nbproject/project.xml
 
-#java specific
+# java specific
 *.class
  
-#general swap/backup files
+# general swap/backup files
 *.so
 *.log
 *.out
@@ -43,3 +43,10 @@ deps
 *.beam
 *.plt
 erl_crash.dump
+
+# sublime text project files
+*.sublime-project
+*.sublime-workspace
+
+# vagrant temporary files
+.vagrant
