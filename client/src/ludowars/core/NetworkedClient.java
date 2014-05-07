@@ -31,9 +31,13 @@ public class NetworkedClient {
     public NetworkedClient() {        
         clientMessageQueue = new ConcurrentLinkedQueue<Object>();
         client = new NetworkChannel();
-        client.register(3, StatePacket.class);
+        client.register(1, MovePacket.class);
         client.register(2, AssignPacket.class);
-        
+        client.register(3, StatePacket.class);
+        client.register(4, AddEntityPacket.class);
+        client.register(5, DeleteEntityPacket.class);
+        client.register(6, UpdateEntityPacket.class);
+                
         client.setHandler(new NetworkChannelHandler() {
             @Override
             public void connected() {
@@ -64,12 +68,20 @@ public class NetworkedClient {
                 S.localPlayer.setDriver(new PlayerDriver());
                 S.localPlayer.setRepresentation(new ControlledPlayerRepresentation());
             }
-               
-                
-                
-            
-            
-            /*if (o instanceof MovePacket) {
+            else if (o instanceof AddEntityPacket) {      
+                AddEntityPacket aep = (AddEntityPacket)o;
+                S.entityManager.createEntity(aep.ed);
+            }
+            else if (o instanceof DeleteEntityPacket) {      
+                DeleteEntityPacket dep = (DeleteEntityPacket)o;
+                S.entityManager.removeEntity(dep.id);
+            }
+            else if (o instanceof UpdateEntityPacket){
+                UpdateEntityPacket uep = (UpdateEntityPacket)o;
+                Entity e = S.entityManager.getEntity(uep.ed.id);
+                e.setData(uep.ed);
+            }    
+            else if (o instanceof MovePacket) {
                 MovePacket mp = (MovePacket)o;
                 Entity e = S.entityManager.getEntity(mp.entityID);
                 
@@ -80,6 +92,8 @@ public class NetworkedClient {
                     temp.position.y = mp.y;               
                     e.driverStateQueue.add(mp.driverstate);
                 }
+            
+/*
                 
             }
             else if (o instanceof AssignPacket) {
@@ -109,6 +123,7 @@ public class NetworkedClient {
                     e.driverStateQueue.add(cmd.driverState);
                 }
             }*/
+        }
         }
         
         if (S.localPlayer != null) {
