@@ -8,17 +8,17 @@ package ludowars.network.packets;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import ludowars.core.Entity;
-import ludowars.model.EntityData;
+import ludowars.model.CharacterData;
 
 /**
  *
  * @author hannesmartinsson
  */
 public class EntityPacket extends Packet {
-    public EntityData ed;
+    public CharacterData ed;
     
     public EntityPacket(){
-    ed = new EntityData();
+    ed = new CharacterData();
     
     }
 
