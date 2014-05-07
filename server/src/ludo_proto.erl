@@ -28,16 +28,13 @@ parser(<<PacketID:(8*1)/signed, Payload/bits>>) ->
 
 parser(1, Payload)->
     <<EntityID:(8*4), X:(8*4)/float, Y:(8*4)/float, North:(8*1), South:(8*1), West:(8*1), East:(8*1), Fire:(8*1), Secondary:(8*1), MouseX:(8*4)/float, MouseY:(8*4)/float>> = Payload,
-    {movePacket, EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY};
+    {move_packet, EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY};
 
 parser(2, Payload) ->
     <<EntityID:(8*4)>> = Payload,
-    {assignEntityPacket, EntityID}.
+    {assign_entity_packet, EntityID}.
 
-composeEntity([], Acc) ->
-    Acc;
-
-composeEntity([#entity{
+composeEntity(#entity{
         id = ID, 
         controller = ControllerClassName, 
         representation = RepresentationClassName, 
@@ -48,12 +45,14 @@ composeEntity([#entity{
         velocityY = VelocityY, 
         angle = Angle, 
         width = Width, 
-        height = Height} | EntityList], Acc) ->
+        height = Height}) ->
     ControllerClassNameString = list_to_binary(string:left(ControllerClassName, 256, $\0)),
     RepresentationClassNameString = list_to_binary(string:left(RepresentationClassName, 256, $\0)),
     DriverClassNameString = list_to_binary(string:left(DriverClassName, 256, $\0)),
-    EntityElement =  <<ID:(8*4), ControllerClassNameString/binary, RepresentationClassNameString/binary, DriverClassNameString/binary, X:(8*4)/float, Y:(8*4)/float, VelocityX:(8*4)/float, VelocityY:(8*4)/float, Angle:(8*4)/float, Width:(8*4), Height:(8*4)>>,
-    composeEntity(EntityList, [EntityElement|Acc]).
+    <<ID:(8*4), ControllerClassNameString/binary, RepresentationClassNameString/binary, DriverClassNameString/binary, X:(8*4)/float, Y:(8*4)/float, VelocityX:(8*4)/float, VelocityY:(8*4)/float, Angle:(8*4)/float, Width:(8*4), Height:(8*4)>>.
+
+composeEntityList(Entities) ->
+    lists:map(fun(X) -> composeEntity(X) end, Entities).
 
 compose(ID, Payload) ->
     BinaryPayload = iolist_to_binary(Payload),
@@ -63,42 +62,26 @@ compose(ID, Payload) ->
     io:format("PacketData: ~p~n", [iolist_to_binary(Packet)]),
     Packet.
 
-compose({movePacket, EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY}) ->
+compose({move_packet, EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY}) ->
     compose(1, <<EntityID:(8*4), X:(8*4)/float, Y:(8*4)/float, North:(8*1), South:(8*1), West:(8*1), East:(8*1), Fire:(8*1), Secondary:(8*1), MouseX:(8*4)/float, MouseY:(8*4)/float>>);
 
-compose({assignEntityPacket, EntityID}) ->
+compose({assign_entity_packet, EntityID}) ->
     compose(2, <<EntityID:(8*4)>>);
 
-compose({statePacket, #state{
+compose({add_entity, EntityData}) ->
+    compose(4, composeEntity(EntityData));
+
+compose({delete_entity, EntityID}) ->
+    compose(5, <<EntityID:(8*4)>>);
+
+compose({update_entity, EntityData}) ->
+    compose(6, composeEntity(EntityData));
+
+compose({state_packet, #state{
         worldBoundsX = X,
         worldBoundsY = Y,
         worldBoundsWidth = Width,
         worldBoundsHeight = Height,
-        entities = EntityList}}) ->
-    Temp = composeEntity(EntityList,[]),
+        entities = Entities}}) ->
+    Temp = composeEntityList(Entities),
     compose(3, [<<X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, (length(Temp)):(8*2)>>, Temp]).
-
-testparser1()->
-    Payload1 = <<1:(8*4), 2:(8*4)/float, 3:(8*4)/float, 4:(8*1), 5:(8*1), 6:(8*1), 7:(8*1), 8:(8*1), 9:(8*1), 10:(8*4)/float, 11:(8*4)/float>>,
-    io:format("~p ~n", [parser(1, Payload1)]),
-    Payload1 == compose(parser(1, Payload1)).
-    
-testparser2() ->
-    Payload2 = <<1:(8*4)>>,
-    io:format("~p ~n", [parser(2, Payload2)]),
-    Payload2 == compose(parser(2, Payload2)).
-    
-testparser3() ->
-    Payload3 = <<1:(8*16), 0:(8*2) >>,
-    io:format("~p ~n", [Payload3]),
-    io:format("~p ~n", [iolist_to_binary(compose(parser(3, Payload3)))]),
-    Payload3 == iolist_to_binary(compose(parser(3, Payload3))).
-	
-
-
-
-
-
-
-       
-

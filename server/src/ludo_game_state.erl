@@ -11,16 +11,16 @@ add_entity(State = #state{entities=Entities, entityCount=EntityCount}, Entity) -
 	{ID, State#state{entities=[NewEntity | Entities], entityCount=EntityCount + 1}}.
 
 delete_entity() ->
-tbi.
+	tbi.
 
-find_entity_by_id(State = #state{entities=Entities}, EntityID) ->
-L = lists:keyfind(EntityID,2,Entities),
-case L of
-	false -> not_found;
-	{_,Entity} -> Entity
-end.
+find_entity_by_id(#state{entities=Entities}, EntityID) ->
+	L = [Entity || Entity = #entity{id=ID} <- Entities, ID == EntityID],
+	case L of
+		[] -> not_found;
+		[Entity] -> Entity
+	end.
 
-find_entities_in_area(State = #state{entities=Entities}, X, Y, R) ->
-tbi.
+find_entities_in_area(_State = #state{entities=_Entities}, _X, _Y, _R) ->
+	tbi.
 
 

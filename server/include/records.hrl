@@ -27,4 +27,3 @@
   	entityCount = 0,
     entities = []
 }).
-

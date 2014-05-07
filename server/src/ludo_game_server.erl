@@ -1,4 +1,3 @@
-
 -module(ludo_game_server).
 -behaviour(gen_server).
 
@@ -9,12 +8,33 @@
 
 -record(gameState, {
 	id,
-	state
+	state,
+	players
+}).
+
+-record(player, {
+	id,
+	pid,
+	name,
+	entityId
 }).
 
 %% API.
 start_link() ->
 	gen_server:start_link(?MODULE, [], []).
+
+add_player(State = #gameState{players=Players}, Player) ->
+	State#gameState{players=[Player|Players]}.
+
+broadcast(Packet, Players) ->
+	[ludo_game_connection:send_packet(PlayerPID, Packet) || #player{pid=PlayerPID} <- Players].
+
+broadcast(Packet, Players, Exclude) ->
+	FilteredPlayers = lists:filter(
+		fun(#player{pid=PlayerPID}) -> PlayerPID =/= Exclude end,
+		Players
+	),
+	broadcast(Packet, FilteredPlayers).
 
 %% gen_server.
 init([]) ->
@@ -27,10 +47,11 @@ init([]) ->
 		entities = [],
 		entityCount = 0
 	},
-	{ok, #gameState{id=ServerID, state=GameState}}.
+	{ok, #gameState{id=ServerID, players=[], state=GameState}}.
 
-handle_call({player_connected, PlayerPID}, _From, #gameState{state=GameState} = State) ->
-	{EntityID, NewGameState} = ludo_game_state:add_entity(GameState, #entity{
+handle_call({player_connected, PlayerID}, _From, State = #gameState{state=GameState, players=Players}) ->
+	{PlayerPID, _} = ludo_master:find_player_by_id(PlayerID),
+	EntityData = #entity{
 		controller = "ludowars.controller.PlayerController", %% controller name
 		representation = "ludowars.view.PlayerRepresentation", %% representation name
 		driver = "ludowars.controller.EntityDriver", %% driver name
@@ -41,10 +62,18 @@ handle_call({player_connected, PlayerPID}, _From, #gameState{state=GameState} = 
 		angle =	0.0, %% angle
 		width =	16, %% width
 		height = 10 %% height
+	},
+	{EntityID, NewGameState} = ludo_game_state:add_entity(GameState, EntityData),
+	NewEntityData = ludo_game_state:find_entity_by_id(NewGameState, EntityID),
+	broadcast({add_entity, NewEntityData}, Players),
+	NewState = add_player(State, #player{
+		id=PlayerID,
+		pid=PlayerPID,
+		entityId=EntityID
 	}),
-	ludo_game_connection:send_packet(PlayerPID, {statePacket, NewGameState}),
-	ludo_game_connection:send_packet(PlayerPID, {assignEntityPacket, EntityID}),
-	{reply, success, State#gameState{state=NewGameState}};
+	ludo_game_connection:send_packet(PlayerPID, {state_packet, NewGameState}),
+	ludo_game_connection:send_packet(PlayerPID, {assign_entity_packet, EntityID}),
+	{reply, success, NewState#gameState{state=NewGameState}};
 
 handle_call(stop, _From, State) ->
 	{stop, normal, stopped, State};
