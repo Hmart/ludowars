@@ -1,14 +1,27 @@
 -module(ludo_proto).
 -compile(export_all).
 
+-include("include/records.hrl").
+
 parseEntity(0,_,Acc) ->
     Acc;
 
 parseEntity(EntityCount, EntityList, Acc) ->
     <<ID:(8*4), ControllerClassName:(8*256), RepresentationClassName:(8*256), DriverClassName:(8*256), X:(8*4)/float, Y:(8*4)/float, VelocityX:(8*4)/float, VelocityY:(8*4)/float, Angle:(8*4)/float, Width:(8*4), Height:(8*4), EntityRest/bits>> = EntityList, 
-    EntityElement = {ID, ControllerClassName, RepresentationClassName, DriverClassName, X, Y, VelocityX, VelocityY, Angle, Width, Height},  
+    EntityElement = #entity{
+        id = ID, 
+        controller = ControllerClassName, 
+        representation = RepresentationClassName, 
+        driver = DriverClassName, 
+        positionX = X, 
+        positionY = Y, 
+        velocityX = VelocityX, 
+        velocityY = VelocityY, 
+        angle = Angle, 
+        width = Width, 
+        height = Height 
+    },
     parseEntity(EntityCount-1, EntityRest, [EntityElement|Acc]).
- 
 
 parser(<<PacketID:(8*1)/signed, Payload/bits>>) ->
     parser(PacketID, Payload).
@@ -19,17 +32,23 @@ parser(1, Payload)->
 
 parser(2, Payload) ->
     <<EntityID:(8*4)>> = Payload,
-    {assignEntityPacket, EntityID};
+    {assignEntityPacket, EntityID}.
 
-parser(3, Payload) -> 
-    <<X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, EntityCount:(8*2), EntityList/bits>> = Payload,
-    {statePacket, X, Y, Width, Height, parseEntity(EntityCount, EntityList, [])}. 
-
-
-composeEntity([],Acc)->
+composeEntity([], Acc) ->
     Acc;
 
-composeEntity([{ID, ControllerClassName, RepresentationClassName, DriverClassName, X, Y, VelocityX, VelocityY, Angle, Width, Height} | EntityList], Acc) ->
+composeEntity([#entity{
+        id = ID, 
+        controller = ControllerClassName, 
+        representation = RepresentationClassName, 
+        driver = DriverClassName, 
+        positionX = X, 
+        positionY = Y, 
+        velocityX = VelocityX, 
+        velocityY = VelocityY, 
+        angle = Angle, 
+        width = Width, 
+        height = Height} | EntityList], Acc) ->
     ControllerClassNameString = list_to_binary(string:left(ControllerClassName, 256, $\0)),
     RepresentationClassNameString = list_to_binary(string:left(RepresentationClassName, 256, $\0)),
     DriverClassNameString = list_to_binary(string:left(DriverClassName, 256, $\0)),
@@ -50,7 +69,12 @@ compose({movePacket, EntityID, X, Y, North, South, West, East, Fire, Secondary, 
 compose({assignEntityPacket, EntityID}) ->
     compose(2, <<EntityID:(8*4)>>);
 
-compose({statePacket, X, Y, Width, Height, EntityList}) ->
+compose({statePacket, #state{
+        worldBoundsX = X,
+        worldBoundsY = Y,
+        worldBoundsWidth = Width,
+        worldBoundsHeight = Height,
+        entities = EntityList}}) ->
     Temp = composeEntity(EntityList,[]),
     compose(3, [<<X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, (length(Temp)):(8*2)>>, Temp]).
 

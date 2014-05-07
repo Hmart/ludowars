@@ -11,6 +11,7 @@
 		ludo_proto,
 		ludo_game_connection_sup,
 		ludo_game_connection,
-		ludo_master
+		ludo_master,
+		ludo_game_state
 	]}
 ]}.

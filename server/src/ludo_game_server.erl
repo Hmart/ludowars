@@ -19,34 +19,32 @@ start_link() ->
 %% gen_server.
 init([]) ->
 	ServerID = ludo_master:register_game(self()),
-	{ok, #gameState{id=ServerID}}.
+	GameState = #state{
+		worldBoundsX = 0.0, %% world boundaries: x
+		worldBoundsY = 0.0, %% world boundaries: y
+		worldBoundsWidth = 1280.0, %% world boundaries: width
+		worldBoundsHeight = 1024.0, %% world boundaries: width
+		entities = [],
+		entityCount = 0
+	},
+	{ok, #gameState{id=ServerID, state=GameState}}.
 
-handle_call({player_connected, PlayerPID}, _From, State) ->
-	ludo_game_connection:send_packet(PlayerPID, {statePacket,
-	0.0, %% world boundaries: x
-	0.0, %% world boundaries: y
-	500.0, %% world boundaries: width
-	500.0, %% world boundaries: width
-	[
-		{
-			1, %% entity id
-			"ludowars.controller.PlayerController", %% controller name
-			"ludowars.view.PlayerRepresentation", %% representation name
-			"ludowars.controller.EntityDriver", %% driver name
-			356.0, %% X
-			356.0, %% Y
-			0.0, %% velocity X
-			0.0, %% velocity Y
-			0.0, %% angle
-			16, %% width
-			10 %% height
-		}
-	]
+handle_call({player_connected, PlayerPID}, _From, #gameState{state=GameState} = State) ->
+	{EntityID, NewGameState} = ludo_game_state:add_entity(GameState, #entity{
+		controller = "ludowars.controller.PlayerController", %% controller name
+		representation = "ludowars.view.PlayerRepresentation", %% representation name
+		driver = "ludowars.controller.EntityDriver", %% driver name
+		positionX = 356.0 + 64 * GameState#state.entityCount, %% X
+		positionY = 356.0 + 64 * GameState#state.entityCount, %% Y
+		velocityX =	0.0, %% velocity X
+		velocityY =	0.0, %% velocity Y
+		angle =	0.0, %% angle
+		width =	16, %% width
+		height = 10 %% height
 	}),
-	ludo_game_connection:send_packet(PlayerPID, {assignEntityPacket,
-		1 %% entity ID
-	}),
-	{reply, success, State};
+	ludo_game_connection:send_packet(PlayerPID, {statePacket, NewGameState}),
+	ludo_game_connection:send_packet(PlayerPID, {assignEntityPacket, EntityID}),
+	{reply, success, State#gameState{state=NewGameState}};
 
 handle_call(stop, _From, State) ->
 	{stop, normal, stopped, State};
