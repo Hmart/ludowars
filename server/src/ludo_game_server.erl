@@ -65,7 +65,6 @@ handle_call({player_connected, PlayerID}, _From, State = #gameState{state=GameSt
 	},
 	{EntityID, NewGameState} = ludo_game_state:add_entity(GameState, EntityData),
 	NewEntityData = ludo_game_state:find_entity_by_id(NewGameState, EntityID),
-	broadcast({add_entity, NewEntityData}, Players),
 	NewState = add_player(State, #player{
 		id=PlayerID,
 		pid=PlayerPID,
@@ -73,6 +72,7 @@ handle_call({player_connected, PlayerID}, _From, State = #gameState{state=GameSt
 	}),
 	ludo_game_connection:send_packet(PlayerPID, {state_packet, NewGameState}),
 	ludo_game_connection:send_packet(PlayerPID, {assign_entity_packet, EntityID}),
+	broadcast({add_entity, NewEntityData}, Players),
 	{reply, success, NewState#gameState{state=NewGameState}};
 
 handle_call(stop, _From, State) ->

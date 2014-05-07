@@ -92,12 +92,14 @@ public class NetworkChannel {
             
             if (inputBuffer.remaining() == 0) {
                 // System.out.println("Nothing to read.");
+                inputBuffer.compact();
                 return;
             }
             
             if (currentPacket == -1) {
                 if (inputBuffer.remaining() < 5) {
                     // nothing to read
+                    inputBuffer.compact();
                     return;
                 }
                 
@@ -118,7 +120,6 @@ public class NetworkChannel {
                 p.read(i);
                 handler.received(p);
                 inputBuffer.position(inputBuffer.position() + packetLength);
-                inputBuffer = inputBuffer.slice();
                 currentPacket = -1;
             }
             
