@@ -6,15 +6,14 @@
 start_link(GameSupPID) ->
 	supervisor:start_link({local, ?MODULE}, ?MODULE, [GameSupPID]).
 
-init([GameSupPID]) ->
+init([_GameSupPID]) ->
 	{ok, Port} = application:get_env(port),
 	io:format("Server started on port: ~p~n", [Port]),
-	io:format("GameSupID: ~p~n", [GameSupPID]),
 	{ok, ListenSocket} = gen_tcp:listen(Port, [{active, true}, {reuseaddr, true}]),
 	spawn_link(fun empty_listeners/0),
 	{ok, {{simple_one_for_one, 60, 3600},
 		[{socket,
-		 {ludo_game_connection, start_link, [ListenSocket, GameSupPID]},
+		 {ludo_game_connection, start_link, [ListenSocket]},
 		 temporary, 1000, worker, [ludo_game_connection]}
 	]}}.
 

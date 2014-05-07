@@ -3,50 +3,39 @@
 
 -include("include/records.hrl").
  
--export([start_link/2]).
+-export([start_link/1, send_packet/2]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
-start_link(Socket, GameSupPID) ->
-	gen_server:start_link(?MODULE, [Socket, GameSupPID], []).
+start_link(Socket) ->
+	gen_server:start_link(?MODULE, [Socket], []).
  
-init([Socket, GameSupPID]) ->
+init([Socket]) ->
 	gen_server:cast(self(), accept_connection),
-	{ok, #client{socket=Socket, gameSupPID=GameSupPID}}.
+	{ok, #client{socket=Socket}}.
+
+send_packet(ConnectionPID, Packet) ->
+	gen_server:cast(ConnectionPID, {packet, Packet}).
 
 %% We never need you, handle_call!
 handle_call(_, _, S) ->
 	{noreply, S}.
 
-handle_cast(accept_connection, Client = #client{socket=ListenSocket, gameSupPID=GameSupPID}) ->
+handle_cast(accept_connection, Client = #client{socket=ListenSocket}) ->
 	{ok, AcceptSocket} = gen_tcp:accept(ListenSocket),
 	%%ludo_game_sup:start_socket(), % a new acceptor is born, praise the lord
-	GameSupPID ! "tjena",
-	io:format("hello gamesuppid ~p~n", [GameSupPID]),
-	gen_tcp:send(AcceptSocket, ludo_proto:compose({statePacket,
-		0.0, %% world boundaries: x
-		0.0, %% world boundaries: y
-		500.0, %% world boundaries: width
-		500.0, %% world boundaries: width
-		[
-			{
-				1, %% entity id
-				"ludowars.controller.PlayerController", %% controller name
-				"ludowars.view.PlayerRepresentation", %% representation name
-				"ludowars.controller.EntityDriver", %% driver name
-				356.0, %% X
-				356.0, %% Y
-				0.0, %% velocity X
-				0.0, %% velocity Y
-				0.0, %% angle
-				16, %% width
-				10 %% height
-			}
-		]
-	})),
-	gen_tcp:send(AcceptSocket, ludo_proto:compose({assignEntityPacket,
-		1 %% entity ID
-	})),
-	{noreply, Client#client{socket=AcceptSocket, state=handshake}}.
+	PlayerID = ludo_master:register_player(self(), 0),
+	GameServerPID = ludo_master:find_game_by_id(0),
+	gen_server:call(GameServerPID, {player_connected, self()}),
+	{noreply, Client#client{
+		socket=AcceptSocket, 
+		state=handshake, 
+		id=PlayerID,
+		gameServerPID=GameServerPID
+	}};
+
+handle_cast({packet, Packet}, Client = #client{socket=Socket}) ->
+	gen_tcp:send(Socket, ludo_proto:compose(Packet)),
+	{noreply, Client}.
 
 handle_info({tcp_closed, _Socket}, S) ->
 	io:format("CLOSING~n"),

@@ -2,5 +2,5 @@
 	id,
 	state,
 	socket,
-	gameSupPID
+	gameServerPID
 }).
