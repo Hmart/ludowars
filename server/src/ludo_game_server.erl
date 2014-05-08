@@ -26,6 +26,13 @@ start_link() ->
 add_player(State = #gameState{players=Players}, Player) ->
 	State#gameState{players=[Player|Players]}.
 
+find_player_by_id(#gameState{players=Players}, PlayerID) ->
+	FilteredPlayers = [P || P = #player{id=ID} <- Players, PlayerID == ID],
+	case FilteredPlayers of
+		[] -> not_found;
+		[Player] -> Player
+	end.
+
 broadcast(Packet, Players) ->
 	[ludo_game_connection:send_packet(PlayerPID, Packet) || #player{pid=PlayerPID} <- Players].
 
@@ -81,12 +88,12 @@ handle_call(stop, _From, State) ->
 handle_call(_Request, _From, State) ->
 	{reply, ignored, State}.
 
-handle_cast({player_disconnected, PlayerPID}, State = #gameState{state=GameState, players=Players}) ->
-	PlayerID = ludo_master:find_player_by_pid(PlayerPID),
-	EntityData = ludo_game_state:find_entity_by_id(GameState,PlayerID),
-	NewGameState = ludo_game_state:delete_entity(GameState, EntityData),
+handle_cast({player_disconnected, PlayerID}, State = #gameState{state=GameState, players=Players}) ->
+	Player = find_player_by_id(Players, PlayerID),
+	EntityData = ludo_game_state:find_entity_by_id(GameState, Player#player.entityId),
+	NewGameState = ludo_game_state:delete_entity(GameState, EntityData#entity.id),
 
-	broadcast({delete_entity, PlayerID},Players),
+	broadcast({delete_entity, EntityData#entity.id}, Players),
 	{noreply, State#gameState{state=NewGameState}};
 
 handle_cast(_Msg, State) ->

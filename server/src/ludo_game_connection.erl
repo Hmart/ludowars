@@ -37,11 +37,10 @@ handle_cast({packet, Packet}, Client = #client{socket=Socket}) ->
 	gen_tcp:send(Socket, ludo_proto:compose(Packet)),
 	{noreply, Client}.
 
-handle_info({tcp_closed, _Socket}, S) ->
+handle_info({tcp_closed, _Socket}, Client) ->
 	io:format("CLOSING~n"),
-	GameServerPID = ludo_master:find_game_by_id(0),
-	gen_server:cast(GameServerPID, {player_disconnected, self()}),
-	{stop, normal, S};
+	gen_server:cast(Client#client.gameServerPID, {player_disconnected, Client#client.id}),
+	{stop, normal, Client};
 
 handle_info({tcp_error, _Socket, _}, S) ->
 	io:format("ERROR~n"),

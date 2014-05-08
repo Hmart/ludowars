@@ -10,8 +10,8 @@ add_entity(State = #state{entities=Entities, entityCount=EntityCount}, Entity) -
 	NewEntity = Entity#entity{id=ID},
 	{ID, State#state{entities=[NewEntity | Entities], entityCount=EntityCount + 1}}.
 
-delete_entity(State = #state{entities=Entities, entityCount=EntityCount}, Entity) ->
-	NewEntities = [E || E <- Entities, E#entity.id =/= Entity#entity.id],
+delete_entity(State = #state{entities=Entities, entityCount=EntityCount}, EntityID) ->
+	NewEntities = [E || E <- Entities, E#entity.id =/= EntityID],
 	State#state{entities=NewEntities,entityCount=EntityCount - 1}.
 
 find_entity_by_id(#state{entities=Entities}, EntityID) ->
