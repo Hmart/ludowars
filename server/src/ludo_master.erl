@@ -2,7 +2,7 @@
 -module(ludo_master).
 -behaviour(gen_server).
 
--export([start_link/0, stop/0, register_game/1, register_player/2, find_game_by_id/1, find_player_by_id/1]). %% API.
+-export([start_link/0, stop/0, register_game/1, register_player/2, find_game_by_id/1, find_player_by_id/1, find_player_by_pid/1]). %% API.
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
 
 -define(SERVER, ?MODULE).
@@ -35,6 +35,9 @@ find_game_by_id(ServerID) ->
 find_player_by_id(PlayerID) ->
 	gen_server:call(?SERVER, {find_player_by_id, PlayerID}).
 
+find_player_by_pid(PlayerPID) ->
+	gen_server:call(?SERVER, {find_player_by_pid, PlayerPID}).
+
 %% gen_server.
 init([]) ->
 	{ok, #masterState{}}.
@@ -51,6 +54,13 @@ handle_call({find_player_by_id, PlayerID}, _From, #masterState{players=Players} 
 	case L of 
 		false -> {reply, undefined, State};
 		{_, PlayerPID, ServerPID} -> {reply, {PlayerPID, ServerPID}, State}
+	end;
+
+handle_call({find_player_by_pid, PlayerPID}, _From, #masterState{players=Players} = State) ->
+	L = lists:keyfind(PlayerPID, 2, Players),
+	case L of 
+		false -> {reply, undefined, State};
+		{PlayerID, _, _} -> {reply, PlayerID, State}
 	end;
 
 handle_call({register_game, ServerPID}, _From, #masterState{games=Games, serverCount=ServerCount} = State) ->

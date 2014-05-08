@@ -81,6 +81,14 @@ handle_call(stop, _From, State) ->
 handle_call(_Request, _From, State) ->
 	{reply, ignored, State}.
 
+handle_cast({player_disconnected, PlayerPID}, State = #gameState{state=GameState, players=Players}) ->
+	PlayerID = ludo_master:find_player_by_pid(PlayerPID),
+	EntityData = ludo_game_state:find_entity_by_id(GameState,PlayerID),
+	NewGameState = ludo_game_state:delete_entity(GameState, EntityData),
+
+	broadcast({delete_entity, PlayerID},Players),
+	{noreply, State#gameState{state=NewGameState}};
+
 handle_cast(_Msg, State) ->
 	{noreply, State}.
 

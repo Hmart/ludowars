@@ -10,6 +10,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
 /**
  *
+ * sdw
  * @author Petter
  */
 public class Core {

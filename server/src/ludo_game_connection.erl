@@ -39,6 +39,8 @@ handle_cast({packet, Packet}, Client = #client{socket=Socket}) ->
 
 handle_info({tcp_closed, _Socket}, S) ->
 	io:format("CLOSING~n"),
+	GameServerPID = ludo_master:find_game_by_id(0),
+	gen_server:cast(GameServerPID, {player_disconnected, self()}),
 	{stop, normal, S};
 
 handle_info({tcp_error, _Socket, _}, S) ->

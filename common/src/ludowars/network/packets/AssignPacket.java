@@ -29,14 +29,6 @@ public class AssignPacket extends Packet {
 
     @Override
     public void read(Input input) {
-        try {
-            System.out.println("HELLO!!!!!!!!!!!!! " + input.available());
-            while (input.available() > 0) {
-                System.out.println("HELLO: " + String.format("%x", input.readByte()));
-            }
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
         id = input.readInt();
     }
 }
