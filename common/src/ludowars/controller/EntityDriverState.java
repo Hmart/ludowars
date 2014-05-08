@@ -20,4 +20,8 @@ public class EntityDriverState {
     public boolean fire;
     public boolean fireSecondary;
     public Vector2 mousePosition;
+
+    public EntityDriverState() {
+        mousePosition = Vector2.Zero;
+    }
 }

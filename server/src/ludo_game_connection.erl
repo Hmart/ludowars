@@ -17,6 +17,22 @@ init([Socket]) ->
 send_packet(ConnectionPID, Packet) ->
 	gen_server:cast(ConnectionPID, {packet, Packet}).
 
+parse_buffer(Client = #client{inputBuffer=Buffer}, ExpectedLength) when length(Buffer) < ExpectedLength ->
+	{Client, no_packet};
+
+parse_buffer(Client = #client{inputBuffer=Buffer}, ExpectedLength) ->
+	{Packet, UpdatedBuffer} = lists:split(ExpectedLength + 5, Buffer),
+	BinaryPacket = iolist_to_binary(Packet),
+	Client2 = Client#client{inputBuffer=UpdatedBuffer},
+	{Client2, ludo_proto:parse(BinaryPacket)}.
+
+parse_buffer(Client = #client{inputBuffer=Buffer}) when length(Buffer) < 5 ->
+	{Client, no_packet};
+
+parse_buffer(Client = #client{inputBuffer=Buffer}) ->
+	<<ExpectedLength:(8 * 4)>> = binary:part(iolist_to_binary(Buffer), {1, 4}),
+	parse_buffer(Client, ExpectedLength).
+
 %% We never need you, handle_call!
 handle_call(_, _, S) ->
 	{noreply, S}.
@@ -31,11 +47,16 @@ handle_cast(accept_connection, Client = #client{socket=ListenSocket}) ->
 		socket=AcceptSocket, 
 		state=handshake, 
 		id=PlayerID,
-		gameServerPID=GameServerPID
+		gameServerPID=GameServerPID,
+		inputBuffer=[]
 	}};
 
 handle_cast({packet, Packet}, Client = #client{socket=Socket}) ->
 	gen_tcp:send(Socket, ludo_proto:compose(Packet)),
+	{noreply, Client};
+
+handle_cast({receive_packet, Packet}, Client = #client{gameServerPID=GameServerPID, id=PlayerID}) ->
+	gen_server:cast(GameServerPID, {packet, PlayerID, Packet}),
 	{noreply, Client}.
 
 handle_info({tcp_closed, _Socket}, Client) ->
@@ -48,9 +69,17 @@ handle_info({tcp_error, _Socket, _}, S) ->
 	{stop, normal, S};
 
 %% catch all packets
-handle_info({_, _, D}, Client) ->
-	io:format("Data~p~n", [ludo_proto:parse(D)]),
-	{noreply, Client}.
+handle_info({_, _, D}, Client = #client{inputBuffer=Buffer}) ->
+	Buffer2 = lists:append([Buffer, D]),
+	Client2 = Client#client{inputBuffer=Buffer2},
+	io:format("Buffer: ~p~n", [iolist_to_binary(Buffer2)]),
+	% todo: parse all packets until `no_packet`
+	{Client3, Packet} = parse_buffer(Client2),
+	case Packet of
+		no_packet -> ok;
+		P -> gen_server:cast(self(), {receive_packet, P})
+	end,
+	{noreply, Client3}.
 
 code_change(_OldVsn, Client, _Extra) ->
 	{ok, Client}.

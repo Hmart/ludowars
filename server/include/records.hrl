@@ -2,7 +2,8 @@
 	id,
 	state,
 	socket,
-	gameServerPID
+	gameServerPID,
+	inputBuffer
 }).
 
 -record(entity, {

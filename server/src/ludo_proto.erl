@@ -23,14 +23,26 @@ parseEntity(EntityCount, EntityList, Acc) ->
     },
     parseEntity(EntityCount-1, EntityRest, [EntityElement|Acc]).
 
-parser(<<PacketID:(8*1)/signed, Payload/bits>>) ->
-    parser(PacketID, Payload).
+parse(<<PacketID:(8*1)/signed, _Length:(8*4), Payload/bits>>) ->
+    parse(PacketID, Payload).
 
-parser(1, Payload)->
-    <<EntityID:(8*4), X:(8*4)/float, Y:(8*4)/float, North:(8*1), South:(8*1), West:(8*1), East:(8*1), Fire:(8*1), Secondary:(8*1), MouseX:(8*4)/float, MouseY:(8*4)/float>> = Payload,
+parse(1, Payload)->
+    <<
+        EntityID:(8*4), 
+        X:(8*4)/float, 
+        Y:(8*4)/float, 
+        North:(8*1), 
+        South:(8*1), 
+        West:(8*1), 
+        East:(8*1), 
+        Fire:(8*1), 
+        Secondary:(8*1), 
+        MouseX:(8*4)/float, 
+        MouseY:(8*4)/float
+    >> = Payload,
     {move_packet, EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY};
 
-parser(2, Payload) ->
+parse(2, Payload) ->
     <<EntityID:(8*4)>> = Payload,
     {assign_entity_packet, EntityID}.
 

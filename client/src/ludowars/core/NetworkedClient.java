@@ -67,7 +67,6 @@ public class NetworkedClient {
                 StatePacket p = (StatePacket) o;
                 S = p.s;
                 System.out.println("entity count: " + p.s.entityManager.getCount());
-                client.write(new AssignPacket());
             } else if (o instanceof AssignPacket) {
                 AssignPacket ap = (AssignPacket) o;
                 System.out.println(ap.id);
@@ -135,6 +134,12 @@ public class NetworkedClient {
              cmd.id = S.localPlayer.getID();
              cmd.driverState = S.localPlayer.getDriver().state;
              sendTCP(cmd);*/
+            MovePacket movePacket = new MovePacket();
+            movePacket.driverstate = S.localPlayer.getDriver().state;
+            movePacket.entityID = S.localPlayer.getID();
+            movePacket.x = S.localPlayer.getData().position.x;
+            movePacket.y = S.localPlayer.getData().position.y;
+            client.write(movePacket);
         }
 
         return S ;

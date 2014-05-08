@@ -37,10 +37,7 @@ broadcast(Packet, Players) ->
 	[ludo_game_connection:send_packet(PlayerPID, Packet) || #player{pid=PlayerPID} <- Players].
 
 broadcast(Packet, Players, Exclude) ->
-	FilteredPlayers = lists:filter(
-		fun(#player{pid=PlayerPID}) -> PlayerPID =/= Exclude end,
-		Players
-	),
+	FilteredPlayers = [P || P <- Players, P#player.id =/= Exclude],
 	broadcast(Packet, FilteredPlayers).
 
 %% gen_server.
@@ -95,6 +92,13 @@ handle_cast({player_disconnected, PlayerID}, State = #gameState{state=GameState,
 
 	broadcast({delete_entity, EntityData#entity.id}, Players),
 	{noreply, State#gameState{state=NewGameState}};
+
+% TODO: implement handling of different packets in a nicer way
+handle_cast({packet, PlayerID, MovePacket}, State = #gameState{state=GameState, players=Players}) ->	
+	% TODO: update the entity
+	broadcast(MovePacket, Players, PlayerID),
+	{noreply, State#gameState{state=GameState}};
+
 
 handle_cast(_Msg, State) ->
 	{noreply, State}.

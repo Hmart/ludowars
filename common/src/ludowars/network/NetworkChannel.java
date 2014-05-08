@@ -71,13 +71,16 @@ public class NetworkChannel {
 
     public void write(Packet packet) {
         try {
+            Output tmpOutput = new Output(8 * 1024);
             int packetId = packetsByClass.get(packet.getClass());
+            
+            packet.write(tmpOutput);
             
             ByteBuffer buffer = ByteBuffer.allocate(8 * 1024);
             output.clear();
             output.writeByte(packetId);
-            output.writeInt(0); // we don't need the packet length server-side
-            packet.write(output);
+            output.writeInt(tmpOutput.total());
+            output.write(tmpOutput.toBytes());
             buffer.put(output.toBytes());
             buffer.flip();
             channel.write(buffer);

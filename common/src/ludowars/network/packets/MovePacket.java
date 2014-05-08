@@ -23,6 +23,7 @@ public class MovePacket extends Packet {
     public int entityID;
 
     public MovePacket() {
+        driverstate = new EntityDriverState();
     }
 
     @Override
