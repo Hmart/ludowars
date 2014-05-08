@@ -16,15 +16,17 @@ import ludowars.controller.EntityDriverState;
  *
  * @author hannesmartinsson
  */
-public class MovePacket implements KryoSerializable{
+public class MovePacket extends Packet {
     public EntityDriverState driverstate;
     public float x;
     public float y;
     public int entityID;
-    
+
+    public MovePacket() {
+    }
 
     @Override
-    public void write(Kryo kryo, Output output) {
+    public void write(Output output) {
         output.writeInt(entityID);
         output.writeFloat(x);
         output.writeFloat(y);
@@ -36,11 +38,10 @@ public class MovePacket implements KryoSerializable{
         output.writeBoolean(driverstate.fireSecondary);
         output.writeFloat(driverstate.mousePosition.x);
         output.writeFloat(driverstate.mousePosition.y);
-        output.close();
     }
 
     @Override
-    public void read(Kryo kryo, Input input) {
+    public void read(Input input) {
         entityID = input.readInt();
         x = input.readFloat();
         y = input.readFloat();
@@ -52,7 +53,6 @@ public class MovePacket implements KryoSerializable{
         driverstate.fireSecondary = input.readBoolean();
         driverstate.mousePosition.x = input.readFloat();
         driverstate.mousePosition.y = input.readFloat();  
-        input.close();
     }
     
 }

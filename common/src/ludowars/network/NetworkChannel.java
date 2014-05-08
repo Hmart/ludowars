@@ -23,7 +23,8 @@ import ludowars.network.packets.Packet;
  */
 public class NetworkChannel {
     private SocketChannel channel;
-    private HashMap<Integer, Class> packets;
+    private HashMap<Integer, Class> packetsById;
+    private HashMap<Class, Integer> packetsByClass;
     private Input input;
     private Output output;
     private NetworkChannelHandler handler;
@@ -34,9 +35,10 @@ public class NetworkChannel {
     private int packetLength;
 
     public NetworkChannel() {
-        packets = new HashMap<>();
+        packetsById = new HashMap<>();
+        packetsByClass = new HashMap<>();
         input = new Input();
-        output = new Output();
+        output = new Output(64 * 1024);
         inputBuffer = ByteBuffer.allocate(64 * 1024);
     }
     
@@ -45,11 +47,12 @@ public class NetworkChannel {
     }
     
     public void register(int id, Class packet) {
-        if (packets.containsKey(id)) {
+        if (packetsById.containsKey(id)) {
             throw new RuntimeException("Packet ID: " + id + " has already been registered");
         }
         
-        packets.put(id, packet);
+        packetsById.put(id, packet);
+        packetsByClass.put(packet, id);
     }
     
     public void connect(String host, int port) {
@@ -66,12 +69,17 @@ public class NetworkChannel {
         }
     }
 
-    private void write(Packet packet) {
+    public void write(Packet packet) {
         try {
+            int packetId = packetsByClass.get(packet.getClass());
+            
             ByteBuffer buffer = ByteBuffer.allocate(8 * 1024);
             output.clear();
+            output.writeByte(packetId);
+            output.writeInt(0); // we don't need the packet length server-side
             packet.write(output);
             buffer.put(output.toBytes());
+            buffer.flip();
             channel.write(buffer);
         } catch (IOException ie) {
             System.out.println("write exception");
@@ -113,7 +121,7 @@ public class NetworkChannel {
             
             if (inputBuffer.remaining() >= packetLength) {
                 // packet ready to be parsed
-                Class cls = packets.get(currentPacket);
+                Class cls = packetsById.get(currentPacket);
                 Packet p = (Packet)cls.getConstructor().newInstance();
                 Input i = new Input(inputBuffer.array());
                 i.setPosition(inputBuffer.position() + inputBuffer.arrayOffset());

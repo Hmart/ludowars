@@ -10,6 +10,7 @@ start_link(Socket) ->
 	gen_server:start_link(?MODULE, [Socket], []).
  
 init([Socket]) ->
+	io:format("started ~p~n", [self()]),
 	gen_server:cast(self(), accept_connection),
 	{ok, #client{socket=Socket}}.
 

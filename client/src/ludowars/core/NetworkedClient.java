@@ -51,6 +51,13 @@ public class NetworkedClient {
             }
         });
     }
+    
+    
+
+    public NetworkedClient(ConcurrentLinkedQueue<Object> clientMessageQueue, NetworkChannel client) {
+        this.clientMessageQueue = clientMessageQueue;
+        this.client = client;
+    }
 
     public State process(State S) {
         Object o;
@@ -60,6 +67,7 @@ public class NetworkedClient {
                 StatePacket p = (StatePacket) o;
                 S = p.s;
                 System.out.println("entity count: " + p.s.entityManager.getCount());
+                client.write(new AssignPacket());
             } else if (o instanceof AssignPacket) {
                 AssignPacket ap = (AssignPacket) o;
                 System.out.println(ap.id);
