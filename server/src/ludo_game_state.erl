@@ -11,7 +11,7 @@ add_entity(State = #state{entities=Entities, entityCount=EntityCount}, Entity) -
 	{ID, State#state{entities=[NewEntity | Entities], entityCount=EntityCount + 1}}.
 
 delete_entity(State = #state{entities=Entities, entityCount=EntityCount}, Entity) ->
-	NewEntities = [E || E <- Entities, E =/= Entity],
+	NewEntities = [E || E <- Entities, E#entity.id =/= Entity#entity.id],
 	State#state{entities=NewEntities,entityCount=EntityCount - 1}.
 
 find_entity_by_id(#state{entities=Entities}, EntityID) ->
@@ -23,13 +23,8 @@ find_entity_by_id(#state{entities=Entities}, EntityID) ->
 
 get_free_entity_id(#state{entities=[]}) ->
 	0;
-get_free_entity_id(#state{entities=Entities}) ->
-	LastEntity = lists:last(Entities),
-	LastEntityID = LastEntity#entity.id,
-	FreeEntityID = LastEntityID+1,
-	FreeEntityID.
+get_free_entity_id(#state{entities=[H|_T]}) ->
+	H#entity.id + 1.
 
 find_entities_in_area(_State = #state{entities=_Entities}, _X, _Y, _R) ->
 	tbi.
-
-
