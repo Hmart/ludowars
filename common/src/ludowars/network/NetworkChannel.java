@@ -91,50 +91,52 @@ public class NetworkChannel {
 
     public void read() {
         try {
-            int bytesRead = channel.read(inputBuffer);
-            inputBuffer.flip();
-            
-            //System.out.println("Inputbuffer: " + inputBuffer);
-                        
-            if (bytesRead == -1) {
-                System.out.println("the connection has been closed.");
-                return;
-            }
-            
-            if (inputBuffer.remaining() == 0) {
-                // System.out.println("Nothing to read.");
-                inputBuffer.compact();
-                return;
-            }
-            
-            if (currentPacket == -1) {
-                if (inputBuffer.remaining() < 5) {
-                    // nothing to read
+            while(true) {
+                int bytesRead = channel.read(inputBuffer);
+                inputBuffer.flip();
+
+                //System.out.println("Inputbuffer: " + inputBuffer);
+
+                if (bytesRead == -1) {
+                    System.out.println("the connection has been closed.");
+                    return;
+                }
+
+                if (inputBuffer.remaining() == 0) {
+                    // System.out.println("Nothing to read.");
                     inputBuffer.compact();
                     return;
                 }
-                
-                currentPacket = inputBuffer.get();
-                packetLength = inputBuffer.getInt();
-                
-                System.out.println("CurrentPacket: " + currentPacket);
-                System.out.println("PacketLength: " + packetLength);
-                System.out.println("remaining: " + inputBuffer.remaining());
+
+                if (currentPacket == -1) {
+                    if (inputBuffer.remaining() < 5) {
+                        // nothing to read
+                        inputBuffer.compact();
+                        return;
+                    }
+
+                    currentPacket = inputBuffer.get();
+                    packetLength = inputBuffer.getInt();
+
+                    System.out.println("CurrentPacket: " + currentPacket);
+                    System.out.println("PacketLength: " + packetLength);
+                    System.out.println("remaining: " + inputBuffer.remaining());
+                }
+
+                if (inputBuffer.remaining() >= packetLength) {
+                    // packet ready to be parsed
+                    Class cls = packetsById.get(currentPacket);
+                    Packet p = (Packet)cls.getConstructor().newInstance();
+                    Input i = new Input(inputBuffer.array());
+                    i.setPosition(inputBuffer.position() + inputBuffer.arrayOffset());
+                    p.read(i);
+                    handler.received(p);
+                    inputBuffer.position(inputBuffer.position() + packetLength);
+                    currentPacket = -1;
+                }
+
+                inputBuffer.compact();
             }
-            
-            if (inputBuffer.remaining() >= packetLength) {
-                // packet ready to be parsed
-                Class cls = packetsById.get(currentPacket);
-                Packet p = (Packet)cls.getConstructor().newInstance();
-                Input i = new Input(inputBuffer.array());
-                i.setPosition(inputBuffer.position() + inputBuffer.arrayOffset());
-                p.read(i);
-                handler.received(p);
-                inputBuffer.position(inputBuffer.position() + packetLength);
-                currentPacket = -1;
-            }
-            
-            inputBuffer.compact();
         } catch (IOException ie) {
             System.out.println("read exception");
         } catch (Throwable ex) {
