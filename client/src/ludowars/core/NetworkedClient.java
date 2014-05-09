@@ -86,6 +86,8 @@ public class NetworkedClient {
             } else if (o instanceof MovePacket) {
                 MovePacket mp = (MovePacket) o;
                 Entity e = S.entityManager.getEntity(mp.entityID);
+                
+                System.out.println("Got move packet for id: " + mp.entityID);
 
                 if (e != null) {
                     EntityData temp = e.getData();

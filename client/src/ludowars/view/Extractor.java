@@ -59,10 +59,12 @@ public class Extractor {
         batch.setProjectionMatrix(camera.combined);
         sr.setProjectionMatrix(camera.combined);
 
-        // let's roll ol ol ol
-        createBackdrop(S, batch);
+        
         
         batch.begin();
+        
+        // let's roll ol ol ol
+        createBackdrop(S, batch);
         // for quadtree debug purposes
 //        ArrayList<Rectangle> qt = S.entityManager.entities.getAllBounds();
 //        
@@ -88,11 +90,9 @@ public class Extractor {
             e.getRepresentation().render(S, batch, sr, camera);
         }
 
-        batch.end();
-        
-        mapRenderer.getSpriteBatch().begin();
         mapRenderer.renderTileLayer((TiledMapTileLayer)S.map.getLayers().get("Roof"));
-        mapRenderer.getSpriteBatch().end();
+        
+        batch.end();
     }
 
     public void resize(int width, int height) {
@@ -109,14 +109,14 @@ public class Extractor {
         if (mapRenderer == null) {
             // setup map renderer
             float unitScale = 1 / 1f;
-            mapRenderer = new OrthogonalTiledMapRenderer(S.map, unitScale);
+            mapRenderer = new OrthogonalTiledMapRenderer(S.map, unitScale, batch);
         }
         
         mapRenderer.setView(camera);
-        mapRenderer.getSpriteBatch().begin();
+        
         mapRenderer.renderTileLayer((TiledMapTileLayer)S.map.getLayers().get("Background"));
         mapRenderer.renderTileLayer((TiledMapTileLayer)S.map.getLayers().get("Ground"));
-        mapRenderer.getSpriteBatch().end();
+        
         //mapRenderer.render(S.map.getLayers().get(null));
     }
 }

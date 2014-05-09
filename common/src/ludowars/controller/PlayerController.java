@@ -53,7 +53,7 @@ public class PlayerController extends CharacterController {
                 missile2.controller = "ludowars.controller.ProjectileController";
                 missile2.representation = "ludowars.view.PowerRepresentation";
                 
-                S.entityManager.createEntity(missile2);
+                S.entityManager.createLocalEntity(missile2);
                 
             }
         }
@@ -70,7 +70,7 @@ public class PlayerController extends CharacterController {
             missile.controller = "ludowars.controller.ProjectileController";
             missile.representation = "ludowars.view.LudoRepresentation";
 
-            S.entityManager.createEntity(missile);
+            S.entityManager.createLocalEntity(missile);
 
         }
         
