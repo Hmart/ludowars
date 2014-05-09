@@ -33,6 +33,20 @@ parse_buffer(Client = #client{inputBuffer=Buffer}) ->
 	<<ExpectedLength:(8 * 4)>> = binary:part(iolist_to_binary(Buffer), {1, 4}),
 	parse_buffer(Client, ExpectedLength).
 
+process_buffer(Client) ->
+	{Client2, Packet} = parse_buffer(Client),
+	case Packet of
+		no_packet -> Client2;
+		P ->
+			gen_server:cast(self(), {receive_packet, P}),
+			process_buffer(Client2)
+	end.
+
+process_data(Client = #client{inputBuffer=Buffer}, D) ->
+	Buffer2 = lists:append([Buffer, D]),
+	Client2 = Client#client{inputBuffer=Buffer2},
+	process_buffer(Client2).
+
 %% We never need you, handle_call!
 handle_call(_, _, S) ->
 	{noreply, S}.
@@ -69,17 +83,9 @@ handle_info({tcp_error, _Socket, _}, S) ->
 	{stop, normal, S};
 
 %% catch all packets
-handle_info({_, _, D}, Client = #client{inputBuffer=Buffer}) ->
-	Buffer2 = lists:append([Buffer, D]),
-	Client2 = Client#client{inputBuffer=Buffer2},
-	io:format("Buffer: ~p~n", [iolist_to_binary(Buffer2)]),
-	% todo: parse all packets until `no_packet`
-	{Client3, Packet} = parse_buffer(Client2),
-	case Packet of
-		no_packet -> ok;
-		P -> gen_server:cast(self(), {receive_packet, P})
-	end,
-	{noreply, Client3}.
+handle_info({_, _, D}, Client) ->
+	Client2 = process_data(Client, D),
+	{noreply, Client2}.
 
 code_change(_OldVsn, Client, _Extra) ->
 	{ok, Client}.
