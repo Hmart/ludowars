@@ -40,11 +40,15 @@ parse(1, Payload)->
         MouseX:(8*4)/float, 
         MouseY:(8*4)/float
     >> = Payload,
-    {move_packet, EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY};
+    {move_packet, {EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY}};
 
 parse(2, Payload) ->
     <<EntityID:(8*4)>> = Payload,
-    {assign_entity_packet, EntityID}.
+    {assign_entity_packet, {EntityID}};
+
+parse(7, Payload) ->
+    <<_Length:(8*2), Text/binary>> = Payload,
+    {chat_packet, {binary_to_list(Text)}}.
 
 composeEntity(#entity{
         id = ID, 
@@ -74,26 +78,31 @@ compose(ID, Payload) ->
     io:format("PacketData: ~p~n", [iolist_to_binary(Packet)]),
     Packet.
 
-compose({move_packet, EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY}) ->
+compose({move_packet, {EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY}}) ->
     compose(1, <<EntityID:(8*4), X:(8*4)/float, Y:(8*4)/float, North:(8*1), South:(8*1), West:(8*1), East:(8*1), Fire:(8*1), Secondary:(8*1), MouseX:(8*4)/float, MouseY:(8*4)/float>>);
 
-compose({assign_entity_packet, EntityID}) ->
+compose({assign_entity_packet, {EntityID}}) ->
     compose(2, <<EntityID:(8*4)>>);
 
-compose({add_entity, EntityData}) ->
+compose({add_entity, {EntityData}}) ->
     compose(4, composeEntity(EntityData));
 
-compose({delete_entity, EntityID}) ->
+compose({delete_entity, {EntityID}}) ->
     compose(5, <<EntityID:(8*4)>>);
 
-compose({update_entity, EntityData}) ->
+compose({update_entity, {EntityData}}) ->
     compose(6, composeEntity(EntityData));
 
-compose({state_packet, #state{
+compose({chat_packet, {Text}}) ->
+    Length = string:len(Text),
+    BinaryText = list_to_binary(Text),
+    compose(7, <<Length:(8*2), BinaryText/binary>>);
+
+compose({state_packet, {#state{
         worldBoundsX = X,
         worldBoundsY = Y,
         worldBoundsWidth = Width,
         worldBoundsHeight = Height,
-        entities = Entities}}) ->
+        entities = Entities}}}) ->
     Temp = composeEntityList(Entities),
     compose(3, [<<X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, (length(Temp)):(8*2)>>, Temp]).

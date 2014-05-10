@@ -13,14 +13,18 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
+import ludowars.core.NetworkedClient;
 import ludowars.core.gui.FontManager;
 import ludowars.core.gui.Layer;
 import ludowars.gui.widgets.ChatWidget;
 import ludowars.gui.widgets.ImageView;
 import ludowars.gui.widgets.InputHandler;
 import ludowars.gui.widgets.SpriteSheetView;
-import ludowars.model.State;
 import ludowars.model.CharacterData;
+import ludowars.model.State;
+import ludowars.network.NetworkChannelHandler;
+import ludowars.network.packets.ChatPacket;
+import ludowars.network.packets.Packet;
 import ludowars.view.SpriteSheet;
 
 /**
@@ -58,10 +62,22 @@ public class HUDLayer extends Layer {
         addWidget(backpack_open = new SpriteSheetView("assets/images/backpack.png", 144, 288));
         addWidget(chat = new ChatWidget());
         
+        NetworkedClient.getInstance().client.addHandler(new NetworkChannelHandler() {
+            @Override
+            public void received(Packet p) {
+                if (p instanceof ChatPacket) {
+                    ChatPacket cp = (ChatPacket)p;
+                    chat.addLine(cp.text);
+                }
+            }
+
+            @Override
+            public void connected() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        });
+        
         chat.setPosition(20, 80);
-        chat.addLine("hello world 1");
-        chat.addLine("hello world 2");
-        chat.addLine("hello world 3!!!");
         
         backpack_open.setPosition(0 - backpack_open.getWidth(), Gdx.graphics.getHeight() - backpack_open.getHeight());
         backpackPosition.x = backpack_open.getBounds().x;

@@ -40,6 +40,21 @@ broadcast(Packet, Players, Exclude) ->
 	FilteredPlayers = [P || P <- Players, P#player.id =/= Exclude],
 	broadcast(Packet, FilteredPlayers).
 
+handle_packet(State, PlayerID, P = {move_packet, _D}) ->
+	% TODO: update the entity
+	broadcast(P, State#gameState.players, PlayerID),
+	State;
+
+handle_packet(State, PlayerID, {chat_packet, {Text}}) ->
+	FormattedText = string:concat(io_lib:format("Player ~p: ", [PlayerID]), Text),
+	broadcast({chat_packet, {FormattedText}}, State#gameState.players),
+	State;
+
+handle_packet(State, _PlayerID, _P) ->
+	%% invalid packet received
+	%% TODO: add some error logging
+	State.
+
 %% gen_server.
 init([]) ->
 	ServerID = ludo_master:register_game(self()),
@@ -74,9 +89,10 @@ handle_call({player_connected, PlayerID}, _From, State = #gameState{state=GameSt
 		pid=PlayerPID,
 		entityId=EntityID
 	}),
-	ludo_game_connection:send_packet(PlayerPID, {state_packet, NewGameState}),
-	ludo_game_connection:send_packet(PlayerPID, {assign_entity_packet, EntityID}),
-	broadcast({add_entity, NewEntityData}, Players),
+	ludo_game_connection:send_packet(PlayerPID, {state_packet, {NewGameState}}),
+	ludo_game_connection:send_packet(PlayerPID, {assign_entity_packet, {EntityID}}),
+	ludo_game_connection:send_packet(PlayerPID, {chat_packet, {io_lib:format("Hello! Your ID is ~p.", [PlayerID])}}),
+	broadcast({add_entity, {NewEntityData}}, Players),
 	{reply, success, NewState#gameState{state=NewGameState}};
 
 handle_call(stop, _From, State) ->
@@ -93,12 +109,9 @@ handle_cast({player_disconnected, PlayerID}, State = #gameState{state=GameState,
 	broadcast({delete_entity, EntityData#entity.id}, Players),
 	{noreply, State#gameState{state=NewGameState}};
 
-% TODO: implement handling of different packets in a nicer way
-handle_cast({packet, PlayerID, MovePacket}, State = #gameState{state=GameState, players=Players}) ->	
-	% TODO: update the entity
-	broadcast(MovePacket, Players, PlayerID),
-	{noreply, State#gameState{state=GameState}};
-
+handle_cast({packet, PlayerID, Packet}, State) ->	
+	State = handle_packet(State, PlayerID, Packet),
+	{noreply, State};
 
 handle_cast(_Msg, State) ->
 	{noreply, State}.

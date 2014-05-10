@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +28,7 @@ public class NetworkChannel {
     private HashMap<Class, Integer> packetsByClass;
     private Input input;
     private Output output;
-    private NetworkChannelHandler handler;
+    private ArrayList<NetworkChannelHandler> handlers;
     
     private ByteBuffer inputBuffer;
     // if -1, waiting for a new packet to arrive
@@ -40,10 +41,11 @@ public class NetworkChannel {
         input = new Input();
         output = new Output(64 * 1024);
         inputBuffer = ByteBuffer.allocate(64 * 1024);
+        handlers = new ArrayList<>();
     }
     
-    public void setHandler(NetworkChannelHandler _handler) {
-        handler = _handler;
+    public void addHandler(NetworkChannelHandler _handler) {
+        handlers.add(_handler);
     }
     
     public void register(int id, Class packet) {
@@ -130,7 +132,11 @@ public class NetworkChannel {
                     Input i = new Input(inputBuffer.array());
                     i.setPosition(inputBuffer.position() + inputBuffer.arrayOffset());
                     p.read(i);
-                    handler.received(p);
+                    
+                    for (NetworkChannelHandler handler : handlers) {
+                        handler.received(p);
+                    }
+                    
                     inputBuffer.position(inputBuffer.position() + packetLength);
                     currentPacket = -1;
                 }

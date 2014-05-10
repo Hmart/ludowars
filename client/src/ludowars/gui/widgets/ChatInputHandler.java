@@ -7,6 +7,9 @@
 package ludowars.gui.widgets;
 
 import com.badlogic.gdx.Input;
+import ludowars.core.NetworkedClient;
+import ludowars.network.packets.ChatPacket;
+import sun.net.NetworkClient;
 
 /**
  *
@@ -36,7 +39,9 @@ public class ChatInputHandler extends InputHandler {
             // submitting message
             if (keycode == Input.Keys.ENTER) {
                 if (bufferLength > 0) {
-                    chat.addLine(buffer.trim());
+                    ChatPacket p = new ChatPacket();
+                    p.text = buffer.trim();
+                    NetworkedClient.getInstance().client.write(p);
                 }
                 chat.setInputBuffer("");
                 chat.setInputActive(false);

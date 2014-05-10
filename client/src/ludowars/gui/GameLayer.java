@@ -51,7 +51,7 @@ public class GameLayer extends Layer {
         E = new Extractor();
         
         //Log.set(Log.LEVEL_DEBUG);
-        N = new NetworkedClient();
+        N = NetworkedClient.getInstance();
         //N.connectT();
         //Network.register(N);
         N.connect();

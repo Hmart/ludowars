@@ -27,8 +27,9 @@ public class NetworkedClient {
 
     public ConcurrentLinkedQueue<Object> clientMessageQueue;
     public NetworkChannel client;
+    private static NetworkedClient instance = null;
 
-    public NetworkedClient() {
+    private NetworkedClient() {
         clientMessageQueue = new ConcurrentLinkedQueue<Object>();
         client = new NetworkChannel();
         client.register(1, MovePacket.class);
@@ -37,8 +38,9 @@ public class NetworkedClient {
         client.register(4, AddEntityPacket.class);
         client.register(5, DeleteEntityPacket.class);
         client.register(6, UpdateEntityPacket.class);
+        client.register(7, ChatPacket.class);
 
-        client.setHandler(new NetworkChannelHandler() {
+        client.addHandler(new NetworkChannelHandler() {
             @Override
             public void connected() {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -52,7 +54,11 @@ public class NetworkedClient {
         });
     }
     
-    
+    public static NetworkedClient getInstance() {
+        if (instance == null)
+            instance = new NetworkedClient();
+        return instance;
+    }
 
     public NetworkedClient(ConcurrentLinkedQueue<Object> clientMessageQueue, NetworkChannel client) {
         this.clientMessageQueue = clientMessageQueue;
@@ -86,8 +92,6 @@ public class NetworkedClient {
             } else if (o instanceof MovePacket) {
                 MovePacket mp = (MovePacket) o;
                 Entity e = S.entityManager.getEntity(mp.entityID);
-                
-                System.out.println("Got move packet for id: " + mp.entityID);
 
                 if (e != null) {
                     EntityData temp = e.getData();
@@ -95,47 +99,11 @@ public class NetworkedClient {
                     temp.position.x = mp.x;
                     temp.position.y = mp.y;
                     e.driverStateQueue.add(mp.driverstate);
-                
+                }
             }
-
-            /*
-                
-             }
-             else if (o instanceof AssignPacket) {
-             AssignPacket ap = (AssignPacket)o;
-             S.localPlayer = S.entityManager.getEntity(ap.id);
-             S.localPlayer.setDriver(new PlayerDriver());
-             S.localPlayer.setRepresentation(new ControlledPlayerRepresentation());
-             }
-             else if (o instanceof Network.UpdateEntity) {
-             Network.UpdateEntity ue = (Network.UpdateEntity)o;
-             Entity e = S.entityManager.getEntity(ue.data.id);
-                
-             if (e != null) {
-             e.setData(ue.data);
-             }
-             }
-             else if (o instanceof Network.CreateEntity) {
-             Network.CreateEntity ce = (Network.CreateEntity)o;
-             S.entityManager.createEntity(ce.data.id, ce.data);
-             }
-             else if (o instanceof Network.UserCommand) {
-             Network.UserCommand cmd = (Network.UserCommand)o;
-             Entity e = S.entityManager.getEntity(cmd.id);
-                
-             if (e != null) {
-             System.out.println(e.driverStateQueue.size());
-             e.driverStateQueue.add(cmd.driverState);
-             }
-             }*/
         }
-    }
 
-    if (S.localPlayer!= null) {
-            /*Network.UserCommand cmd = new Network.UserCommand();
-             cmd.id = S.localPlayer.getID();
-             cmd.driverState = S.localPlayer.getDriver().state;
-             sendTCP(cmd);*/
+        if (S.localPlayer!= null) {
             MovePacket movePacket = new MovePacket();
             movePacket.driverstate = S.localPlayer.getDriver().state;
             movePacket.entityID = S.localPlayer.getID();
@@ -144,10 +112,10 @@ public class NetworkedClient {
             client.write(movePacket);
         }
 
-        return S ;
-}
+        return S;
+    }
 
-private boolean connectToServer() {
+    private boolean connectToServer() {
         //try {
         //client.connect(5000, "localhost", Network.port);
         client.connect("localhost", 7331);
