@@ -8,7 +8,7 @@ package ludowars.gui.widgets;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -73,8 +73,8 @@ public class ChatWidget extends Widget {
     public void render(SpriteBatch batch, ShapeRenderer sr, float delta) {
         if (inputActive) {
             batch.end();
-            Gdx.gl.glEnable(GL10.GL_BLEND);
-            Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
             sr.begin(ShapeRenderer.ShapeType.Filled);
 
             // chat background
@@ -86,7 +86,7 @@ public class ChatWidget extends Widget {
             sr.rect(bounds.x, bounds.y, getWidth(), 30);
 
             sr.end();
-            Gdx.gl.glDisable(GL10.GL_BLEND);
+            Gdx.gl.glDisable(GL20.GL_BLEND);
             batch.begin();
         }
         

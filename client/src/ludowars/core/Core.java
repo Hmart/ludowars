@@ -21,7 +21,6 @@ public class Core {
         LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 
         cfg.vSyncEnabled = true;
-        cfg.useGL20 = true;
         cfg.width = WIDTH;
         cfg.height = HEIGHT;
         cfg.title = "LUDOWARS";
