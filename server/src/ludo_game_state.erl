@@ -12,7 +12,11 @@ add_entity(State = #state{entities=Entities, entityCount=EntityCount}, Entity) -
 
 delete_entity(State = #state{entities=Entities, entityCount=EntityCount}, EntityID) ->
 	NewEntities = [E || E <- Entities, E#entity.id =/= EntityID],
-	State#state{entities=NewEntities,entityCount=EntityCount - 1}.
+	State#state{entities=NewEntities, entityCount=EntityCount - 1}.
+
+update_entity(State = #state{entities=Entities}, EntityID, UpdatedEntity) ->
+	Entities2 = lists:keyreplace(EntityID, 2, Entities, UpdatedEntity),
+	State#state{entities=Entities2}.
 
 find_entity_by_id(#state{entities=Entities}, EntityID) ->
 	L = [Entity || Entity = #entity{id=ID} <- Entities, ID == EntityID],

@@ -26,6 +26,10 @@ start_link() ->
 add_player(State = #gameState{players=Players}, Player) ->
 	State#gameState{players=[Player|Players]}.
 
+update_player(State = #gameState{players=Players}, PlayerID, UpdatedPlayer) ->
+	Players2 = lists:keyreplace(PlayerID, 1, Players, UpdatedPlayer),
+	State#gameState{players=Players2}.
+
 find_player_by_id(#gameState{players=Players}, PlayerID) ->
 	FilteredPlayers = [P || P = #player{id=ID} <- Players, PlayerID == ID],
 	case FilteredPlayers of
@@ -40,13 +44,15 @@ broadcast(Packet, Players, Exclude) ->
 	FilteredPlayers = [P || P <- Players, P#player.id =/= Exclude],
 	broadcast(Packet, FilteredPlayers).
 
-handle_packet(State, PlayerID, P = {move_packet, _D}) ->
-	% TODO: update the entity
-	broadcast(P, State#gameState.players, PlayerID),
-	State;
+handle_packet(State, Player, P = {move_packet, {_EntityID, X, Y, _North, _South, _West, _East, _Fire, _Secondary, _MouseX, _MouseY}}) ->
+	Entity = ludo_game_state:find_entity_by_id(State#gameState.state, Player#player.entityId),
+	UpdatedEntity = Entity#entity{positionX=X, positionY=Y},
+	GameState = ludo_game_state:update_entity(State#gameState.state, Player#player.entityId, UpdatedEntity),
+	broadcast(P, State#gameState.players, Player#player.id),
+	State#gameState{state=GameState};
 
-handle_packet(State, PlayerID, {chat_packet, {Text}}) ->
-	FormattedText = string:concat(io_lib:format("Player ~p: ", [PlayerID]), Text),
+handle_packet(State, Player, {chat_packet, {Text}}) ->
+	FormattedText = string:concat(io_lib:format("Player ~p: ", [Player#player.id]), Text),
 	broadcast({chat_packet, {FormattedText}}, State#gameState.players),
 	State;
 
@@ -102,7 +108,7 @@ handle_call(_Request, _From, State) ->
 	{reply, ignored, State}.
 
 handle_cast({player_disconnected, PlayerID}, State = #gameState{state=GameState, players=Players}) ->
-	Player = find_player_by_id(Players, PlayerID),
+	Player = find_player_by_id(State, PlayerID),
 	EntityData = ludo_game_state:find_entity_by_id(GameState, Player#player.entityId),
 	NewGameState = ludo_game_state:delete_entity(GameState, EntityData#entity.id),
 
@@ -110,8 +116,9 @@ handle_cast({player_disconnected, PlayerID}, State = #gameState{state=GameState,
 	{noreply, State#gameState{state=NewGameState}};
 
 handle_cast({packet, PlayerID, Packet}, State) ->	
-	State = handle_packet(State, PlayerID, Packet),
-	{noreply, State};
+	Player = find_player_by_id(State, PlayerID),
+	State2 = handle_packet(State, Player, Packet),
+	{noreply, State2};
 
 handle_cast(_Msg, State) ->
 	{noreply, State}.
