@@ -23,7 +23,7 @@ public class TestPlayer {
         tmp.x = 300;
         tmp.y = 300;
         this.currentPosition = tmp;
-        this.currentAcceleration = Vector2.Zero;
+        this.currentAcceleration = new Vector2();
         this.mousePosition = new Vector2(0, 0);
     }
 }

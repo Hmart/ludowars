@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import java.util.Iterator;
 import java.util.Map;
+import ludowars.controller.EntityDriverState;
 import ludowars.core.Entity;
 import ludowars.model.EntityData;
 import ludowars.model.State;
@@ -24,6 +25,8 @@ public class LogicMain {
             if (e.getDriver() != null) {
                 if (!e.driverStateQueue.isEmpty()) {
                     e.getDriver().state = e.driverStateQueue.poll();
+                    e.getDriver().state.mousePosition = e.getDriver().state.mousePosition.cpy();
+                    e.getData().position = e.getDriver().state.position.cpy();                
                 }
                 e.getDriver().refresh(camera);
             }
