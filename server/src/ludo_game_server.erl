@@ -37,6 +37,29 @@ find_player_by_id(#gameState{players=Players}, PlayerID) ->
 		[Player] -> Player
 	end.
 
+handle_command(State = #gameState{state=GameState, players=Players}, Player, "spawn") ->
+	PlayerEntity = ludo_game_state:find_entity_by_id(GameState, Player#player.entityId),
+	EntityData = #entity{
+		controller = "ludowars.controller.PlayerController", %% controller name
+		representation = "ludowars.view.PlayerRepresentation", %% representation name
+		driver = "ludowars.controller.EntityDriver", %% driver name
+		positionX = PlayerEntity#entity.positionX + 48.0, %% X
+		positionY = PlayerEntity#entity.positionY + 48.0, %% Y
+		velocityX =	0.0, %% velocity X
+		velocityY =	0.0, %% velocity Y
+		angle =	0.0, %% angle
+		width =	16, %% width
+		height = 10 %% height
+	},
+	{EntityID, NewGameState} = ludo_game_state:add_entity(GameState, EntityData),
+	EntityData2 = EntityData#entity{id=EntityID},
+	broadcast({add_entity, {EntityData2}}, Players),
+	State#gameState{state=NewGameState};
+
+handle_command(State, Player, Command) ->
+	io:format("Player: ~p Command: ~p~n", [Player#player.id, Command]),
+	State.
+
 broadcast(Packet, Players) ->
 	[ludo_game_connection:send_packet(PlayerPID, Packet) || #player{pid=PlayerPID} <- Players].
 
@@ -50,6 +73,9 @@ handle_packet(State, Player, P = {move_packet, {_EntityID, X, Y, _North, _South,
 	GameState = ludo_game_state:update_entity(State#gameState.state, Player#player.entityId, UpdatedEntity),
 	broadcast(P, State#gameState.players, Player#player.id),
 	State#gameState{state=GameState};
+
+handle_packet(State, Player, {chat_packet, {[$/|Command]}}) ->
+	handle_command(State, Player, Command);
 
 handle_packet(State, Player, {chat_packet, {Text}}) ->
 	FormattedText = string:concat(io_lib:format("Player ~p: ", [Player#player.id]), Text),
