@@ -112,7 +112,7 @@ handle_cast({player_disconnected, PlayerID}, State = #gameState{state=GameState,
 	EntityData = ludo_game_state:find_entity_by_id(GameState, Player#player.entityId),
 	NewGameState = ludo_game_state:delete_entity(GameState, EntityData#entity.id),
 
-	broadcast({delete_entity, EntityData#entity.id}, Players),
+	broadcast({delete_entity, {EntityData#entity.id}}, Players),
 	{noreply, State#gameState{state=NewGameState}};
 
 handle_cast({packet, PlayerID, Packet}, State) ->	
