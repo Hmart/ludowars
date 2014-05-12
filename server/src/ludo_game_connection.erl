@@ -54,7 +54,7 @@ handle_call(_, _, S) ->
 handle_cast(accept_connection, Client = #client{socket=ListenSocket}) ->
 	{ok, AcceptSocket} = gen_tcp:accept(ListenSocket),
 	%%ludo_game_sup:start_socket(), % a new acceptor is born, praise the lord
-	PlayerID = ludo_master:register_player(self(), 0),
+	PlayerID = ludo_master:register_player(0),
 	GameServerPID = ludo_master:find_game_by_id(0),
 	gen_server:call(GameServerPID, {player_connected, PlayerID}),
 	{noreply, Client#client{

@@ -2,7 +2,7 @@
 -module(ludo_master).
 -behaviour(gen_server).
 
--export([start_link/0, stop/0, register_game/1, register_player/2, find_game_by_id/1, find_player_by_id/1, find_player_by_pid/1]). %% API.
+-export([start_link/0, stop/0, register_game/0, register_player/1, find_game_by_id/1, find_player_by_id/1, find_player_by_pid/1]). %% API.
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
 
 -define(SERVER, ?MODULE).
@@ -23,11 +23,11 @@ start_link() ->
 stop() ->
 	gen_server:call(?SERVER, stop).
 
-register_game(ServerPID) ->
-	gen_server:call(?SERVER, {register_game, ServerPID}).
+register_game() ->
+	gen_server:call(?SERVER, {register_game, self()}).
 
-register_player(PlayerPID, ServerID) ->
-	gen_server:call(?SERVER, {register_player, PlayerPID, ServerID}).
+register_player(ServerID) ->
+	gen_server:call(?SERVER, {register_player, self(), ServerID}).
 
 find_game_by_id(ServerID) ->
 	gen_server:call(?SERVER, {find_game_by_id, ServerID}).
