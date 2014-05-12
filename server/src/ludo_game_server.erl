@@ -16,7 +16,8 @@
 	id,
 	pid,
 	name,
-	entityId
+	entityId,
+	is_npc
 }).
 
 %% API.
@@ -89,7 +90,7 @@ handle_packet(State, _PlayerID, _P) ->
 
 %% gen_server.
 init([]) ->
-	ServerID = ludo_master:register_game(self()),
+	ServerID = ludo_master:register_game(),
 	GameState = #state{
 		worldBoundsX = 0.0, %% world boundaries: x
 		worldBoundsY = 0.0, %% world boundaries: y

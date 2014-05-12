@@ -17,7 +17,7 @@
 	velocityY, 
 	angle, 
 	width, 
-	height 
+	height
 }).
 
 -record(state, {
@@ -25,6 +25,7 @@
    	worldBoundsY,
     worldBoundsWidth,
     worldBoundsHeight,
-  	entityCount = 0,
-    entities = []
+  	entityCount,
+    entities,
+    subscribers
 }).
