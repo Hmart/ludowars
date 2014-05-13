@@ -22,6 +22,20 @@
 	statePID
 }).
 
+-record(driverState, {
+	entityID,
+    positionX,
+    positionY,
+    north,
+    south,
+    west,
+    east,
+    fire,
+    secondary,
+    mouseX,
+    mouseY
+}).
+
 -record(state, {
 	worldBoundsX,
    	worldBoundsY,

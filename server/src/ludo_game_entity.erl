@@ -8,7 +8,8 @@
 	update_entity/2,
 	get_entity/1,
 	get_entity_id/1,
-	set_position/3
+	set_position/3,
+	process_driver_state/2
 ]).
 
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
@@ -41,6 +42,14 @@ set_position(EntityPID, PosX, PosY) ->
 	update_entity(EntityPID, Entity2),
 	Entity2.
 
+process_driver_state(EntityPID, DriverState) ->
+	#driverState{
+		positionX=X,
+		positionY=Y
+	} = DriverState,
+	set_position(EntityPID, X, Y),
+	gen_server:call(EntityPID, {update_driver_state, DriverState}).
+
 %% gen_server.
 init([Entity]) ->
 	Entity2 = Entity#entity{pid=self()},
@@ -59,6 +68,10 @@ handle_call(delete_entity, _From, Entity) ->
 handle_call({update_entity, UpdatedEntity}, _From, Entity) ->
 	ludo_game_state:update_entity(Entity#entity.statePID, UpdatedEntity),
 	{reply, ok, UpdatedEntity};
+
+handle_call({update_driver_state, DriverState}, _From, Entity) ->
+	ludo_game_state:update_driver_state(Entity#entity.statePID, DriverState),
+	{reply, ok, Entity};
 
 handle_call(stop, _From, Entity) ->
 	ludo_game_state:delete_entity(Entity#entity.statePID, Entity#entity.id),

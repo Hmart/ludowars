@@ -40,7 +40,19 @@ parse(1, Payload)->
         MouseX:(8*4)/float, 
         MouseY:(8*4)/float
     >> = Payload,
-    {move_packet, {EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY}};
+    {move_packet, #driverState{
+        entityID=EntityID,
+        positionX=X,
+        positionY=Y,
+        north=North,
+        south=South,
+        west=West,
+        east=East,
+        fire=Fire,
+        secondary=Secondary,
+        mouseX=MouseX,
+        mouseY=MouseY
+    }};
 
 parse(2, Payload) ->
     <<EntityID:(8*4)>> = Payload,
@@ -78,7 +90,19 @@ compose(ID, Payload) ->
     io:format("PacketData: ~p~n", [iolist_to_binary(Packet)]),
     Packet.
 
-compose({move_packet, {EntityID, X, Y, North, South, West, East, Fire, Secondary, MouseX, MouseY}}) ->
+compose({move_packet, #driverState{
+        entityID=EntityID,
+        positionX=X,
+        positionY=Y,
+        north=North,
+        south=South,
+        west=West,
+        east=East,
+        fire=Fire,
+        secondary=Secondary,
+        mouseX=MouseX,
+        mouseY=MouseY
+    }}) ->
     compose(1, <<EntityID:(8*4), X:(8*4)/float, Y:(8*4)/float, North:(8*1), South:(8*1), West:(8*1), East:(8*1), Fire:(8*1), Secondary:(8*1), MouseX:(8*4)/float, MouseY:(8*4)/float>>);
 
 compose({assign_entity_packet, {EntityID}}) ->
