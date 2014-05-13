@@ -11,9 +11,6 @@ init([]) ->
 		[{ludo_game_connection_sup,
 		 {ludo_game_connection_sup, start_link, [self()]},
 		 transient, infinity, supervisor, [ludo_game_connection_sup]},
-		 {ludo_game_path_server,
-		 {ludo_game_path_server, start_link, []},
-		 transient, infinity, worker, [ludo_game_path_server]},
 		 {ludo_game_server,
 		 {ludo_game_server, start_link, []},
 		 transient, infinity, worker, [ludo_game_server]}

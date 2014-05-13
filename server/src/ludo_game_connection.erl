@@ -6,6 +6,7 @@
 -export([start_link/1, send_packet/2]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
+% Public API
 start_link(Socket) ->
 	gen_server:start_link(?MODULE, [Socket], []).
  
@@ -17,6 +18,7 @@ init([Socket]) ->
 send_packet(ConnectionPID, Packet) ->
 	gen_server:cast(ConnectionPID, {packet, Packet}).
 
+% Private API
 parse_buffer(Client = #client{inputBuffer=Buffer}, ExpectedLength) when length(Buffer) < ExpectedLength ->
 	{Client, no_packet};
 
@@ -54,14 +56,12 @@ handle_call(_, _, S) ->
 handle_cast(accept_connection, Client = #client{socket=ListenSocket}) ->
 	{ok, AcceptSocket} = gen_tcp:accept(ListenSocket),
 	%%ludo_game_sup:start_socket(), % a new acceptor is born, praise the lord
-	PlayerID = ludo_master:register_player(0),
 	GameServerPID = ludo_master:find_game_by_id(0),
-	gen_server:call(GameServerPID, {player_connected, PlayerID}),
+	PlayerPID = ludo_game_player:start_link(self()),
 	{noreply, Client#client{
 		socket=AcceptSocket, 
-		state=handshake, 
-		id=PlayerID,
 		gameServerPID=GameServerPID,
+		playerPID=PlayerPID,
 		inputBuffer=[]
 	}};
 
@@ -69,13 +69,13 @@ handle_cast({packet, Packet}, Client = #client{socket=Socket}) ->
 	gen_tcp:send(Socket, ludo_proto:compose(Packet)),
 	{noreply, Client};
 
-handle_cast({receive_packet, Packet}, Client = #client{gameServerPID=GameServerPID, id=PlayerID}) ->
-	gen_server:cast(GameServerPID, {packet, PlayerID, Packet}),
+handle_cast({receive_packet, Packet}, Client = #client{playerPID=PlayerPID}) ->
+	gen_fsm:send_all_state_event(PlayerPID, {packet, Packet}),
 	{noreply, Client}.
 
 handle_info({tcp_closed, _Socket}, Client) ->
 	io:format("CLOSING~n"),
-	gen_server:cast(Client#client.gameServerPID, {player_disconnected, Client#client.id}),
+	%%gen_server:cast(Client#client.gameServerPID, {player_disconnected, Client#client.id}),
 	{stop, normal, Client};
 
 handle_info({tcp_error, _Socket, _}, S) ->
