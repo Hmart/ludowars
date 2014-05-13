@@ -91,13 +91,12 @@ public class NetworkedClient {
                 e.setData(uep.ed);
             } else if (o instanceof MovePacket) {
                 MovePacket mp = (MovePacket) o;
-                Entity e = S.entityManager.getEntity(mp.entityID);
+                Entity e = S.entityManager.getEntity(mp.entityID);  
+
 
                 if (e != null) {
-                    EntityData temp = e.getData();
-                    temp.id = mp.entityID;
-                    temp.position.x = mp.x;
-                    temp.position.y = mp.y;
+                    mp.driverstate.position.x = mp.x;
+                    mp.driverstate.position.y = mp.y;
                     e.driverStateQueue.add(mp.driverstate);
                 }
             }
@@ -128,7 +127,7 @@ public class NetworkedClient {
     }
 
     public void connect() {
-        client.connect("localhost", 7331);
+        client.connect("130.238.251.63", 7331);
         /*new Thread("Connect") {
          public void run() {
          if (!connectToServer()) {

@@ -25,7 +25,7 @@ public class EntityDriver {
         state.moveWest = false;
         state.fire = false;
         state.fireSecondary = false;
-        state.mousePosition = Vector2.Zero;
+        state.mousePosition = new Vector2();
     }
     
     public void refresh(OrthographicCamera camera) {
@@ -39,7 +39,7 @@ public class EntityDriver {
         state.moveWest = false;
         state.fire = false;
         state.fireSecondary = false;
-        state.mousePosition = Vector2.Zero;
+        state.mousePosition = new Vector2();
     }
 
     public Vector2 getAccelerationVector() {
