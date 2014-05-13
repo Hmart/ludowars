@@ -2,7 +2,8 @@
 -behaviour(gen_server).
 
 -export([start_link/0, add_entity/2, delete_entity/2, update_entity/2, 
-		find_entity_by_id/2, get_state/1, subscribe/1, unsubscribe/1]). %% API.
+		find_entity_by_id/2, get_state/1, subscribe/1, subscribe/2,
+		unsubscribe/1, unsubscribe/2]). %% API.
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
 
 -include("include/records.hrl").
@@ -26,12 +27,17 @@ find_entity_by_id(StatePID, EntityID) ->
 get_state(StatePID) ->
 	gen_server:call(StatePID, get_state).
 
-subscribe(StatePID) ->
-	gen_server:call(StatePID, {subscribe, self()}).
+subscribe(StatePID, SubscriberPID) ->
+	gen_server:call(StatePID, {subscribe, SubscriberPID}).
 
-unsubscribe(_StatePID) ->
-	%% TODO: call this automatically for dying processes (use monitors)
-	tbi.
+subscribe(StatePID) ->
+	subscribe(StatePID, self()).
+
+unsubscribe(StatePID, SubscriberPID) ->
+	gen_server:cast(StatePID, {unsubscribe, SubscriberPID}).
+
+unsubscribe(StatePID) ->
+	unsubscribe(StatePID, self()).
 
 %% Private API.
 get_free_entity_id(#state{entities=[]}) ->
@@ -40,11 +46,11 @@ get_free_entity_id(#state{entities=[]}) ->
 get_free_entity_id(#state{entities=[H|_T]}) ->
 	H#entity.id + 1.
 
-send(Subscriber, Message) ->
-	gen_server:cast(Subscriber, Message).
+notify(#state{subscribers=Subscribers}, Message) ->
+	lists:map(fun (S) -> notify(S, Message) end, Subscribers);
 
-broadcast(#state{subscribers=Subscribers}, Message) ->
-	lists:map(fun (S) -> send(S, Message) end, Subscribers).
+notify(SubscriberPID, Message) ->
+	gen_server:cast(SubscriberPID, Message).
 
 %% gen_server.
 init([]) ->
@@ -66,7 +72,7 @@ handle_call({add_entity, Entity}, _From, State) ->
 		entities=[NewEntity|State#state.entities], 
 		entityCount=State#state.entityCount + 1
 	},
-	broadcast(NewState, {added_entity, NewEntity}),
+	notify(NewState, {added_entity, NewEntity}),
 	{reply, NewEntity, NewState};
 
 handle_call({delete_entity, EntityID}, _From, State) ->
@@ -75,7 +81,7 @@ handle_call({delete_entity, EntityID}, _From, State) ->
 		entities=NewEntities,
 		entityCount=State#state.entityCount - 1
 	},
-	broadcast(NewState, {deleted_entity, EntityID}),
+	notify(NewState, {deleted_entity, EntityID}),
 	{reply, ok, NewState};
 
 handle_call({update_entity, Entity}, _From, State) ->
@@ -83,7 +89,7 @@ handle_call({update_entity, Entity}, _From, State) ->
 	NewState = State#state{
 		entities=NewEntities
 	},
-	broadcast(NewState, {updated_entity, Entity}),
+	notify(NewState, {updated_entity, Entity}),
 	{reply, ok, NewState};
 
 handle_call({find_entity_by_id, EntityID}, _From, State) ->
@@ -101,6 +107,7 @@ handle_call({subscribe, PID}, _From, State) ->
 	NewState = State#state{
 		subscribers=[PID|State#state.subscribers]
 	},
+	monitor(process, PID),
 	{reply, ok, NewState};
 
 handle_call(stop, _From, State) ->
@@ -109,8 +116,18 @@ handle_call(stop, _From, State) ->
 handle_call(_Request, _From, State) ->
 	{reply, ignored, State}.
 
+handle_cast({unsubscribe, PID}, State) ->
+	NewState = State#state{
+		subscribers=lists:delete(PID, State#state.subscribers)
+	},
+	{noreply, NewState};
+
 handle_cast(_Msg, State) ->
 	{noreply, State}.
+
+handle_info({'DOWN', _MonitorRef, _Type, SubscriberPID, _Info}, State) ->
+	unsubscribe(SubscriberPID),
+	{noreply, State};
 
 handle_info(_Info, State) ->
 	{noreply, State}.
