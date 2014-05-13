@@ -12,6 +12,7 @@
 		ludo_game_connection_sup,
 		ludo_game_connection,
 		ludo_master,
-		ludo_game_state
+		ludo_game_state,
+		ludo_game_entity
 	]}
 ]}.

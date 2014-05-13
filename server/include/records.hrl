@@ -17,7 +17,8 @@
 	velocityY, 
 	angle, 
 	width, 
-	height
+	height,
+	statePID
 }).
 
 -record(state, {
