@@ -3,7 +3,7 @@
 
 -export([start_link/0, add_entity/2, delete_entity/2, update_entity/2, 
 		get_entity/2, get_state/1, subscribe/1, subscribe/2,
-		unsubscribe/1, unsubscribe/2]). %% API.
+		unsubscribe/1, unsubscribe/2, update_driver_state/2]). %% API.
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
 
 -include("include/records.hrl").
@@ -20,6 +20,9 @@ delete_entity(StatePID, EntityID) ->
 
 update_entity(StatePID, Entity) ->
 	gen_server:call(StatePID, {update_entity, Entity}).
+
+update_driver_state(StatePID, DriverState) ->
+	gen_server:call(StatePID, {update_driver_state, DriverState}).
 
 get_entity(StatePID, EntityID) ->
 	gen_server:call(StatePID, {find_entity_by_id, EntityID}).
@@ -93,6 +96,10 @@ handle_call({update_entity, Entity}, _From, State) ->
 	},
 	notify(NewState, {updated_entity, Entity}),
 	{reply, ok, NewState};
+
+handle_call({update_driver_state, DriverState}, _From, State) ->
+	notify(State, {updated_driver_state, DriverState}),
+	{reply, ok, State};
 
 handle_call({find_entity_by_id, EntityID}, _From, State) ->
 	L = [Entity || Entity = #entity{id=ID} <- State#state.entities, ID == EntityID],
