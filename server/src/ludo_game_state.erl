@@ -2,7 +2,7 @@
 -behaviour(gen_server).
 
 -export([start_link/0, add_entity/2, delete_entity/2, update_entity/2, 
-		find_entity_by_id/2, get_state/1, subscribe/1, subscribe/2,
+		get_entity/2, get_state/1, subscribe/1, subscribe/2,
 		unsubscribe/1, unsubscribe/2]). %% API.
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
 
@@ -21,7 +21,7 @@ delete_entity(StatePID, EntityID) ->
 update_entity(StatePID, Entity) ->
 	gen_server:call(StatePID, {update_entity, Entity}).
 
-find_entity_by_id(StatePID, EntityID) ->
+get_entity(StatePID, EntityID) ->
 	gen_server:call(StatePID, {find_entity_by_id, EntityID}).
 
 get_state(StatePID) ->
@@ -67,13 +67,15 @@ init([]) ->
 
 handle_call({add_entity, Entity}, _From, State) ->
 	ID = get_free_entity_id(State),
-	NewEntity = Entity#entity{id=ID},
+	Entity2 = Entity#entity{id=ID, statePID=self()},
+	{ok, EntityPID} = ludo_game_entity:start_link(Entity2),
+	Entity3 = Entity2#entity{pid=EntityPID},
 	NewState = State#state{
-		entities=[NewEntity|State#state.entities], 
+		entities=[Entity3|State#state.entities], 
 		entityCount=State#state.entityCount + 1
 	},
-	notify(NewState, {added_entity, NewEntity}),
-	{reply, NewEntity, NewState};
+	notify(NewState, {added_entity, Entity3}),
+	{reply, Entity3, NewState};
 
 handle_call({delete_entity, EntityID}, _From, State) ->
 	NewEntities = [E || E <- State#state.entities, E#entity.id =/= EntityID],
