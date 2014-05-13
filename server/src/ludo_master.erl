@@ -71,8 +71,9 @@ handle_call({register_game, ServerPID}, _From, #masterState{games=Games, serverC
 	}};
 
 handle_call({register_player, PlayerPID, ServerID}, _From, #masterState{players=Players, playerCount=PlayerCount} = State) ->
-	PlayerID = PlayerCount, 
-	{reply, PlayerID, State#masterState{
+	PlayerID = PlayerCount,
+	ServerPID = find_game_by_id(ServerID),
+	{reply, {PlayerID, ServerPID}, State#masterState{
 		players=[{PlayerID, PlayerPID, ServerID} | Players], 
 		playerCount=PlayerCount + 1
 	}};

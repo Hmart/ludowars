@@ -3,6 +3,7 @@
 	state,
 	socket,
 	gameServerPID,
+	playerPID,
 	inputBuffer
 }).
 
