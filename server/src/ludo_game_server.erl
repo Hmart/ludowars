@@ -21,7 +21,7 @@ get_state_server(GamePID) ->
 %% gen_server.
 init([]) ->
 	ServerID = ludo_master:register_game(),
-	StatePID = ludo_game_state:start_link(),
+	{ok, StatePID} = ludo_game_state:start_link(),
 	{ok, #serverState{
 		id=ServerID,
 		statePID=StatePID

@@ -38,16 +38,19 @@ find_player_by_id(PlayerID) ->
 find_player_by_pid(PlayerPID) ->
 	gen_server:call(?SERVER, {find_player_by_pid, PlayerPID}).
 
+find_game_by_id_(#masterState{games=Games}, ServerID) ->
+	L = lists:keyfind(ServerID, 1, Games),
+	case L of 
+		false -> undefined;
+		{_, ServerPID} -> ServerPID
+	end.
+
 %% gen_server.
 init([]) ->
 	{ok, #masterState{}}.
 
-handle_call({find_game_by_id, ServerID}, _From, #masterState{games = Games} = State) ->
-	L = lists:keyfind(ServerID,1,Games),
-	case L of 
-		false -> {reply, undefined,State};
-		{_, ServerPID} -> {reply, ServerPID, State}
-	end;
+handle_call({find_game_by_id, ServerID}, _From, State) ->
+	{reply, find_game_by_id_(State, ServerID), State};
 
 handle_call({find_player_by_id, PlayerID}, _From, #masterState{players=Players} = State) ->
 	L = lists:keyfind(PlayerID, 1, Players),
@@ -72,7 +75,7 @@ handle_call({register_game, ServerPID}, _From, #masterState{games=Games, serverC
 
 handle_call({register_player, PlayerPID, ServerID}, _From, #masterState{players=Players, playerCount=PlayerCount} = State) ->
 	PlayerID = PlayerCount,
-	ServerPID = find_game_by_id(ServerID),
+	ServerPID = find_game_by_id_(State, ServerID),
 	{reply, {PlayerID, ServerPID}, State#masterState{
 		players=[{PlayerID, PlayerPID, ServerID} | Players], 
 		playerCount=PlayerCount + 1

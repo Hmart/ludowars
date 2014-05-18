@@ -117,6 +117,7 @@ handle_call({subscribe, PID}, _From, State) ->
 		subscribers=[PID|State#state.subscribers]
 	},
 	monitor(process, PID),
+	notify(PID, {subscribed, NewState}),
 	{reply, ok, NewState};
 
 handle_call(stop, _From, State) ->
