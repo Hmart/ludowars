@@ -12,7 +12,8 @@
     connectionPID,
     gamePID,
     statePID,
-    entityID
+    entityID,
+    entityPID
 }).
 
 send_packet(State, Packet) ->
@@ -37,6 +38,7 @@ init(ConnectionPID) ->
       width = 16, %% width
       height = 10 %% height
     }),
+    EntityPID = Entity#entity.pid,
     EntityID = Entity#entity.id,
     io:format("entity ~p~n", [EntityID]),
     {ok, alive, #playerState{
@@ -44,11 +46,22 @@ init(ConnectionPID) ->
         gamePID=GamePID,
         connectionPID=ConnectionPID,
         statePID=StatePID,
-        entityID=EntityID
+        entityID=EntityID,
+        entityPID=EntityPID
     }}.
 
 alive(_Msg, State) ->
     {next_state, alive, State}.
+
+handle_packet({move_packet, DriverState}, StateName, State) ->
+  ludo_game_entity:process_driver_state(State#playerState.entityPID, DriverState),
+  {next_state, StateName, State};
+
+handle_packet(_Packet, StateName, State) ->
+  {next_state, StateName, State}.
+
+handle_event({packet, Packet}, StateName, State) ->
+  handle_packet(Packet, StateName, State);
 
 handle_event(_Event, StateName, State) ->
   {next_state, StateName, State}.
@@ -71,8 +84,14 @@ handle_info({'$gen_cast', {added_entity, Entity}}, StateName, State) ->
   send_packet(State, {add_entity, {Entity}}),
   {next_state, StateName, State};
 
+handle_info({'$gen_cast', {updated_driver_state, DriverState}}, StateName, State)
+  when DriverState#driverState.entityID =/= State#playerState.entityID ->
+  io:format("driver state for ~p ~p~n", [DriverState#driverState.entityID, DriverState]),
+  send_packet(State, {move_packet, DriverState}),
+  {next_state, StateName, State};
+
 handle_info(Info, StateName, State) ->
-  io:format("handle_info ~p~n", [Info]),
+  %%io:format("handle_info ~p~n", [Info]),
   {next_state, StateName, State}.
 
 terminate(_Reason, _StateName, _State) ->

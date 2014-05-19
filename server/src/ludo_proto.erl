@@ -85,9 +85,9 @@ composeEntityList(Entities) ->
 compose(ID, Payload) ->
     BinaryPayload = iolist_to_binary(Payload),
     PayloadSize = round(bit_size(BinaryPayload) / 8),
-    io:format("PayloadSize: ~p~n", [PayloadSize]),
+    %%io:format("PayloadSize: ~p~n", [PayloadSize]),
     Packet = [<<ID:8, PayloadSize:(8*4)>>, Payload],
-    io:format("PacketData: ~p~n", [iolist_to_binary(Packet)]),
+    %%io:format("PacketData: ~p~n", [iolist_to_binary(Packet)]),
     Packet.
 
 compose({move_packet, #driverState{
