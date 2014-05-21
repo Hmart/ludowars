@@ -95,6 +95,12 @@ public class NetworkedClient {
 
 
                 if (e != null) {
+                    // clear the queue if too many states to process
+                    // to avoid delays
+                    if (e.driverStateQueue.size() > 10) {
+                        e.driverStateQueue.clear();
+                    }
+                    
                     mp.driverstate.position.x = mp.x;
                     mp.driverstate.position.y = mp.y;
                     e.driverStateQueue.add(mp.driverstate);
