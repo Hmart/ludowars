@@ -1,7 +1,7 @@
 -module(ludo_game_server).
 -behaviour(gen_server).
 
--export([start_link/0, get_state_server/1]). %% API.
+-export([start_link/0, get_state_server/1, get_unix_time/0]). %% API.
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
 
 -include("include/records.hrl").
@@ -17,6 +17,10 @@ start_link() ->
 
 get_state_server(GamePID) ->
 	gen_server:call(GamePID, get_state_pid).
+
+get_unix_time() ->
+	{M, S, _} = erlang:now(),
+	M * 1000000 + S.
 
 %% gen_server.
 init([]) ->

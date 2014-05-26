@@ -14,7 +14,8 @@
     entityPID,
     targetEntityID,
     targetEntityPID,
-    timer
+    timer,
+    primaryAttackTimer
 }).
 
 
@@ -45,7 +46,8 @@ init(GamePID) ->
         statePID=StatePID,
         entityID=EntityID,
         entityPID=EntityPID,
-        timer=Timer
+        timer=Timer,
+        primaryAttackTimer=0
     }}.
 
 wander(_Msg, State) ->
@@ -83,6 +85,13 @@ chase(_Msg, State) ->
           }),
           {next_state, wander, State};
         true ->
+          Time = ludo_game_server:get_unix_time(),
+          {Fire, State2} = if
+            State#npcState.primaryAttackTimer =< Time -> 
+              {1, State#npcState{primaryAttackTimer=Time + 1}};
+            true ->
+              {0, State}
+          end,
           ludo_game_entity:process_driver_state(State#npcState.entityPID, #driverState{
             entityID=Entity#entity.id,
             positionX=Entity#entity.positionX,
@@ -91,12 +100,12 @@ chase(_Msg, State) ->
             south=0,
             west=0,
             east=0,
-            fire=1,
+            fire=Fire,
             secondary=0,
             mouseX=TargetEntity#entity.positionX,
             mouseY=TargetEntity#entity.positionY
           }),
-          {next_state, chase, State}
+          {next_state, chase, State2}
       end
   end.
 
