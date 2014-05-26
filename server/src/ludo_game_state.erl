@@ -2,8 +2,8 @@
 -behaviour(gen_server).
 
 -export([start_link/0, add_entity/2, delete_entity/2, update_entity/2, 
-		get_entity/2, get_state/1, subscribe/1, subscribe/2,
-		unsubscribe/1, unsubscribe/2, update_driver_state/2]). %% API.
+		get_entity/2,get_entities_in_range/4, get_closest_entity/4, get_state/1, subscribe/1, subscribe/2,
+		unsubscribe/1, unsubscribe/2, update_driver_state/2, distance/4, get_closest_entity/5]). %% API.
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
 
 -include("include/records.hrl").
@@ -27,6 +27,15 @@ update_driver_state(StatePID, DriverState) ->
 get_entity(StatePID, EntityID) ->
 	gen_server:call(StatePID, {find_entity_by_id, EntityID}).
 
+get_entities_in_range(StatePID, X, Y, R) ->
+	gen_server:call(StatePID, {find_entities_in_range, X, Y, R}).
+
+get_closest_entity(StatePID, X, Y, R, E) ->
+	gen_server:call(StatePID, {get_closest_entity, X, Y, R, E}).
+
+get_closest_entity(StatePID, X, Y, R) ->
+	gen_server:call(StatePID, {get_closest_entity, X, Y, R, undefined}).
+
 get_state(StatePID) ->
 	gen_server:call(StatePID, get_state).
 
@@ -48,6 +57,11 @@ get_free_entity_id(#state{entities=[]}) ->
 
 get_free_entity_id(#state{entities=[H|_T]}) ->
 	H#entity.id + 1.
+
+distance(X1, Y1, X2, Y2) ->
+	Xd = X2 - X1,
+	Yd = Y2 - Y1,
+	math:sqrt((Xd * Xd) + (Yd * Yd)).
 
 notify(#state{subscribers=Subscribers}, Message) ->
 	lists:map(fun (S) -> notify(S, Message) end, Subscribers);
@@ -106,6 +120,18 @@ handle_call({find_entity_by_id, EntityID}, _From, State) ->
 	FoundEntity = case L of
 		[] -> not_found;
 		[Entity] -> Entity
+	end,
+	{reply, FoundEntity, State};
+
+handle_call({get_entities_in_range, X, Y, R}, _From, State) ->
+	tbi;
+
+handle_call({get_closest_entity, X, Y, R, E}, _From, State) ->
+	L = [Entity || Entity = #entity{id=ID, positionX=PositionX, positionY=PositionY} <- State#state.entities, 
+		R >= distance(X, Y, PositionX, PositionY), E#entity.id =/= ID],
+	FoundEntity = case L of
+		[] -> not_found;
+		[Entity|_T] -> Entity
 	end,
 	{reply, FoundEntity, State};
 

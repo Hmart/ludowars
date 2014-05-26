@@ -9,7 +9,8 @@
 	get_entity/1,
 	get_entity_id/1,
 	set_position/3,
-	process_driver_state/2
+	process_driver_state/2,
+	distance/2
 ]).
 
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
@@ -49,6 +50,14 @@ process_driver_state(EntityPID, DriverState) ->
 	} = DriverState,
 	set_position(EntityPID, X, Y),
 	gen_server:call(EntityPID, {update_driver_state, DriverState}).
+
+distance(Entity1, Entity2) ->
+	ludo_game_state:distance(
+		Entity1#entity.positionX,
+		Entity1#entity.positionY,
+		Entity2#entity.positionX,
+		Entity2#entity.positionY
+	).
 
 %% gen_server.
 init([Entity]) ->

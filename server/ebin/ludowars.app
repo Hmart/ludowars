@@ -14,6 +14,7 @@
 		ludo_master,
 		ludo_game_state,
 		ludo_game_entity,
-		ludo_game_player
+		ludo_game_player,
+		ludo_game_npc
 	]}
 ]}.

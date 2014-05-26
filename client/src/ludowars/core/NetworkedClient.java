@@ -133,7 +133,8 @@ public class NetworkedClient {
     }
 
     public void connect() {
-        client.connect("130.238.251.63", 7331);
+        client.connect("localhost", 7331);
+        //client.connect("130.238.246.63", 7331);
         /*new Thread("Connect") {
          public void run() {
          if (!connectToServer()) {

@@ -22,6 +22,7 @@ get_state_server(GamePID) ->
 init([]) ->
 	ServerID = ludo_master:register_game(),
 	{ok, StatePID} = ludo_game_state:start_link(),
+	gen_server:cast(self(), game_start),
 	{ok, #serverState{
 		id=ServerID,
 		statePID=StatePID
@@ -35,6 +36,11 @@ handle_call(stop, _From, State) ->
 
 handle_call(_Request, _From, State) ->
 	{reply, ignored, State}.
+
+handle_cast(game_start, State) ->
+	Self = self(),
+	spawn(fun() -> ludo_game_npc:start_link(Self) end),
+	{noreply, State};
 
 handle_cast(_Msg, State) ->
 	{noreply, State}.
