@@ -88,7 +88,7 @@ public class PlayerController extends CharacterController {
         ArrayList<Entity> collidees = getCollidingEntities(S);
         
         if (!collidees.isEmpty()) {
-            if (collidees.size() == 0) {
+            if (collidees.size() > 0) {
                 Entity e = collidees.get(0);
                 System.out.println("SINGLE COLLISION " + e.getBounds() + " " + entity.getBounds());
                 
@@ -105,14 +105,14 @@ public class PlayerController extends CharacterController {
 //                    System.out.println(data.position + ", !!!, " + data.velocity);
 //                }
                 
-//                if (data.velocity.x > 0)
-//                    data.position.x = e.getBounds().x - entity.getBounds().width;
-//                else if (data.velocity.x < 0)
-//                    data.position.x = e.getBounds().x + e.getBounds().width;
-//                else if (data.velocity.y > 0)
-//                    data.position.y = e.getBounds().y - entity.getBounds().height;
-//                else if (data.velocity.y < 0)
-//                    data.position.y = e.getBounds().y + e.getBounds().height;
+                if (data.velocity.x > 0)
+                    data.position.x = e.getBounds().x - entity.getBounds().width;
+                else if (data.velocity.x < 0)
+                    data.position.x = e.getBounds().x + e.getBounds().width;
+                else if (data.velocity.y > 0)
+                    data.position.y = e.getBounds().y - entity.getBounds().height;
+                else if (data.velocity.y < 0)
+                    data.position.y = e.getBounds().y + e.getBounds().height;
 
             }
             else {
