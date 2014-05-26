@@ -75,6 +75,7 @@ handle_cast({receive_packet, Packet}, Client = #client{playerPID=PlayerPID}) ->
 
 handle_info({tcp_closed, _Socket}, Client) ->
 	io:format("CLOSING~n"),
+	gen_fsm:send_all_state_event(Client#client.playerPID, disconnect),
 	%%gen_server:cast(Client#client.gameServerPID, {player_disconnected, Client#client.id}),
 	{stop, normal, Client};
 

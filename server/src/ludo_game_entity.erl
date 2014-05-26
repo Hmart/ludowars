@@ -56,7 +56,7 @@ init([Entity]) ->
 	{ok, Entity2}.
 
 stop() ->
-	gen_server:call(self(), stop).
+	gen_server:cast(self(), stop).
 
 handle_call(get_state, _From, Entity) ->
 	{reply, Entity, Entity};
@@ -73,12 +73,14 @@ handle_call({update_driver_state, DriverState}, _From, Entity) ->
 	ludo_game_state:update_driver_state(Entity#entity.statePID, DriverState),
 	{reply, ok, Entity};
 
-handle_call(stop, _From, Entity) ->
-	ludo_game_state:delete_entity(Entity#entity.statePID, Entity#entity.id),
-	{stop, normal, stopped, Entity};
-
-handle_call(_Request, _From, Entity) ->
+handle_call(Request, _From, Entity) ->
+	io:format("entity handle_call: ~p~n", [Request]),
 	{reply, ignored, Entity}.
+
+handle_cast(stop, Entity) ->
+  	io:format("DELETE ENTITY ~p, ~p~n", [Entity#entity.statePID, Entity#entity.id]),
+	ludo_game_state:delete_entity(Entity#entity.statePID, Entity#entity.id),
+	{stop, normal, Entity};
 
 handle_cast(_Msg, Entity) ->
 	{noreply, Entity}.

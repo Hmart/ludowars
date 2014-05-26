@@ -63,7 +63,13 @@ handle_packet(_Packet, StateName, State) ->
 handle_event({packet, Packet}, StateName, State) ->
   handle_packet(Packet, StateName, State);
 
-handle_event(_Event, StateName, State) ->
+handle_event(disconnect, StateName, State) ->
+  io:format("PLAYER DISCONNECT ~p, ~p~n", [State#playerState.entityID, State#playerState.entityPID]),
+  ludo_game_entity:delete_entity(State#playerState.entityPID),
+  {next_state, StateName, State};
+
+handle_event(Event, StateName, State) ->
+  io:format("handle_event ~p~n", [Event]),
   {next_state, StateName, State}.
 
 handle_sync_event(_Event, _From, StateName, State) ->
@@ -84,13 +90,17 @@ handle_info({'$gen_cast', {added_entity, Entity}}, StateName, State) ->
   send_packet(State, {add_entity, {Entity}}),
   {next_state, StateName, State};
 
+handle_info({'$gen_cast', {deleted_entity, EntityID}}, StateName, State) ->
+  send_packet(State, {delete_entity, {EntityID}}),
+  {next_state, StateName, State};
+
 handle_info({'$gen_cast', {updated_driver_state, DriverState}}, StateName, State)
   when DriverState#driverState.entityID =/= State#playerState.entityID ->
-  io:format("driver state for ~p ~p~n", [DriverState#driverState.entityID, DriverState]),
+  %io:format("driver state for ~p ~p~n", [DriverState#driverState.entityID, DriverState]),
   send_packet(State, {move_packet, DriverState}),
   {next_state, StateName, State};
 
-handle_info(Info, StateName, State) ->
+handle_info(_Info, StateName, State) ->
   %%io:format("handle_info ~p~n", [Info]),
   {next_state, StateName, State}.
 
