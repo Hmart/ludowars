@@ -1,4 +1,4 @@
--module(test_mochijson2).
+-module(mochijson_ludo).
 -export([readlines/1, get_all_lines/2]).
 
 readlines(FileName) ->
