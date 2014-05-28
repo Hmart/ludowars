@@ -15,6 +15,10 @@
 		ludo_game_state,
 		ludo_game_entity,
 		ludo_game_player,
-		ludo_game_npc
+		ludo_game_npc,
+		ludo_game_mapparser,
+		ludo_game_pathfinding,
+		mochijson2,
+		mochijson_ludo
 	]}
 ]}.

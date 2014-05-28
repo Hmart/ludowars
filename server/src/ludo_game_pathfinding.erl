@@ -15,12 +15,12 @@ astar(Start,Goal,ClosedList) ->
     
     CameFrom = dict:append(Start, none, dict:new()),
     
-    astar_step(Goal, Closedset, Openset, Fscore, Gscore, CameFrom).
+    lists:reverse(astar_step(Goal, Closedset, Openset, Fscore, Gscore, CameFrom)).
 
 astar_step(Goal, Closedset, Openset, Fscore, Gscore, CameFrom) ->
     case sets:size(Openset) of
 	0 ->
-	    failure;
+	    [];
 	_ ->
 	    case best_step(sets:to_list(Openset), Fscore, none, infinity) of
 		Goal ->

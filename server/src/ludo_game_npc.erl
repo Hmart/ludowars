@@ -15,7 +15,9 @@
     targetEntityID,
     targetEntityPID,
     timer,
-    primaryAttackTimer
+    primaryAttackTimer,
+    map,
+    path
 }).
 
 
@@ -41,18 +43,20 @@ init(GamePID) ->
     EntityID = Entity#entity.id,
     io:format("entity ~p~n", [EntityID]),
     Timer = timer:send_interval(21, tick),
+    Map = ludo_game_mapparser:main(),
     {ok, wander, #npcState{
         gamePID=GamePID,
         statePID=StatePID,
         entityID=EntityID,
         entityPID=EntityPID,
         timer=Timer,
-        primaryAttackTimer=0
+        primaryAttackTimer=0,
+        map=Map
     }}.
 
 wander(_Msg, State) ->
   Entity = ludo_game_state:get_entity(State#npcState.statePID, State#npcState.entityID),
-  TargetEntity = ludo_game_state:get_closest_entity(State#npcState.statePID, Entity#entity.positionX, Entity#entity.positionY, 150, Entity),
+  TargetEntity = ludo_game_state:get_closest_entity(State#npcState.statePID, Entity#entity.positionX, Entity#entity.positionY, 500, Entity),
   case TargetEntity of 
     not_found -> {next_state, wander, State};
     _ -> {next_state, chase, State#npcState{
@@ -69,7 +73,7 @@ chase(_Msg, State) ->
     _ ->
       Distance = ludo_game_entity:distance(Entity, TargetEntity),
       if 
-        Distance > 150 ->
+        Distance > 500 ->
           ludo_game_entity:process_driver_state(State#npcState.entityPID, #driverState{
             entityID=Entity#entity.id,
             positionX=Entity#entity.positionX,
@@ -92,11 +96,34 @@ chase(_Msg, State) ->
             true ->
               {0, State}
           end,
+          Path = ludo_game_pathfinding:astar(
+              ludo_game_entity:tile_position(Entity), 
+              ludo_game_entity:tile_position(TargetEntity),
+              State#npcState.map
+          ),
+          {TileX, TileY} = case Fire of 
+            1 ->
+              case Path of
+                [H|[H2|_T]] -> H2;
+                _ -> ludo_game_entity:tile_position(Entity)
+              end;
+            _ -> ludo_game_entity:tile_position(Entity)
+          end,
+          CurrentX = Entity#entity.positionX,
+          CurrentY = Entity#entity.positionY,
+          TargetX = TileX * 32 + 16,
+          TargetY = TileY * 32 + 16,
+
+          North = trunc(max(TargetY - CurrentY, 1.0)),
+          South = trunc(max(CurrentY - TargetY, 1.0)),
+          West = trunc(max(CurrentX - TargetX, 1.0)),
+          East = trunc(max(TargetX - CurrentX, 1.0)),
+
           ludo_game_entity:process_driver_state(State#npcState.entityPID, #driverState{
             entityID=Entity#entity.id,
-            positionX=Entity#entity.positionX,
-            positionY=Entity#entity.positionY,
-            north=0,
+            positionX=TileX * 32 + 16,
+            positionY=TileY * 32 + 16,
+            north=1,
             south=0,
             west=0,
             east=0,

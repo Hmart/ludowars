@@ -37,7 +37,7 @@ searchlist([{struct,X}|Rest])->
     end.
 
 jsonParser() ->
-    {struct, Jsondata } = mochijson2:decode(test_mochijson2:readlines("../../client/assets/maps/forest.json")),
+    {struct, Jsondata } = mochijson2:decode(test_mochijson2:readlines("../client/assets/maps/forest.json")),
     Layers = proplists:get_value(<<"layers">>, Jsondata),
     searchlist(Layers).
 

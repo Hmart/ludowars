@@ -10,7 +10,8 @@
 	get_entity_id/1,
 	set_position/3,
 	process_driver_state/2,
-	distance/2
+	distance/2,
+	tile_position/1
 ]).
 
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
@@ -58,6 +59,9 @@ distance(Entity1, Entity2) ->
 		Entity2#entity.positionX,
 		Entity2#entity.positionY
 	).
+
+tile_position(Entity) ->
+	{round(Entity#entity.positionX) div 32, round(Entity#entity.positionY) div 32}.
 
 %% gen_server.
 init([Entity]) ->
