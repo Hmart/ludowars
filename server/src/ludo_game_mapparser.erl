@@ -55,10 +55,10 @@ make_map([], ClosedList, _Count) ->
 make_map([H|Rest], ClosedList, Count) ->
     case H =/= 0 of 
 	true ->
-	    make_map([Rest], [add_collider(coordinateConverter(Count), ClosedList)], (Count+1));
-	fales ->
-	    make_map([Rest], ClosedList, Count+1)
+	    make_map(Rest, add_collider(coordinateConverter(Count), ClosedList), (Count+1));
+	false ->
+	    make_map(Rest, ClosedList, (Count+1))
     end.
 
 main()->
-    make_map(jsonParser(),[],0).
+    make_map(jsonParser(),sets:new(),0).
