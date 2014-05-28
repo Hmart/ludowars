@@ -28,17 +28,37 @@ create_map(SouthWestCorner, NorthEastCorner, ColliderList, MapList) ->
 searchlist([]) ->
     false;
 searchlist([{struct,X}|Rest])->
- 
-case <<"ServerColliders">> == proplists:get_value(<<"name">>, X) of
+    
+    case <<"ServerColliders">> == proplists:get_value(<<"name">>, X) of
 	true -> 
 	    proplists:get_value(<<"data">>, X);
 	false ->
-	searchlist(Rest)
-end.
+	    searchlist(Rest)
+    end.
 
-    
-
-main() ->
-   {struct, Jsondata } = mochijson2:decode(test_mochijson2:readlines("../../client/assets/maps/forest.json")),
+jsonParser() ->
+    {struct, Jsondata } = mochijson2:decode(test_mochijson2:readlines("../../client/assets/maps/forest.json")),
     Layers = proplists:get_value(<<"layers">>, Jsondata),
     searchlist(Layers).
+
+
+
+coordinateConverter(Count) ->
+    Y = (Count div 40),
+    X = (Count rem 40),
+    {X,Y}.
+
+
+make_map([], ClosedList, _Count) ->
+    ClosedList;
+
+make_map([H|Rest], ClosedList, Count) ->
+    case H =/= 0 of 
+	true ->
+	    make_map([Rest], [add_collider(coordinateConverter(Count), ClosedList)], (Count+1));
+	fales ->
+	    make_map([Rest], ClosedList, Count+1)
+    end.
+
+main()->
+    make_map(jsonParser(),[],0).
