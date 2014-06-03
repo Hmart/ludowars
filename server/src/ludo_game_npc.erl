@@ -28,7 +28,7 @@ init(GamePID) ->
     StatePID = ludo_game_server:get_state_server(GamePID),
     ludo_game_state:subscribe(StatePID),
     Entity = ludo_game_state:add_entity(StatePID, #entity{
-      controller = "ludowars.controller.PlayerController", %% controller name
+      controller = "ludowars.controller.ZombieController", %% controller name
       representation = "ludowars.view.ZombieRepresentation", %% representation name
       driver = "ludowars.controller.EntityDriver", %% driver name
       positionX = random:uniform(128) + 512 + 128.0, %% X
