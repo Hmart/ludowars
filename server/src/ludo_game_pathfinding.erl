@@ -1,9 +1,7 @@
 -module(ludo_game_pathfinding).
 -compile(export_all).
 
-
-%% Not optimal, diagonal movement cost 2, go through diagonal collidertiles!!
-
+%% @doc A* algorithm, searches for the optimal path to take between two tiles
 
 astar(Start,Goal,ClosedList) ->
 
@@ -16,6 +14,8 @@ astar(Start,Goal,ClosedList) ->
     CameFrom = dict:append(Start, none, dict:new()),
     
     lists:reverse(astar_step(Goal, Closedset, Openset, Fscore, Gscore, CameFrom)).
+
+%% @doc Take the most optimal step
 
 astar_step(Goal, Closedset, Openset, Fscore, Gscore, CameFrom) ->
     case sets:size(Openset) of
@@ -33,6 +33,8 @@ astar_step(Goal, Closedset, Openset, Fscore, Gscore, CameFrom) ->
 		    astar_step(Goal, NextClosed, NewOpen, NewF, NewG, NewFrom)
 	    end
     end.
+
+%% @doc Adds all availible tiles to a openset
 
 scan(_X, [], Open, _Closed, F, G, From, _Goal) ->
     {Open, F, G, From};
@@ -60,6 +62,8 @@ scan(X, [Y|N], Open, Closed, F, G, From, Goal) ->
 	    end
     end.
 
+%% @doc Update the optimal path
+
 update(X, Y, OldF, OldG, OldFrom, GValue, Goal) ->
     
     KeyF = dict:is_key(Y, OldF),
@@ -79,6 +83,8 @@ update(X, Y, OldF, OldG, OldFrom, GValue, Goal) ->
 	    {NewF, NewG, NewFrom}
     end.
 
+%% @doc Reconstruct the path from current tile back to the start tile
+
 reconstruct_path(CameFrom, Node) ->
     case dict:fetch(Node, CameFrom) of
 	[none] ->
@@ -86,6 +92,9 @@ reconstruct_path(CameFrom, Node) ->
 	[Value] ->
 	    [Node | reconstruct_path(CameFrom, Value)]
     end.
+
+
+%% @doc Searches for the lowest fscore in openset
 
 best_step([H|Open], Score, none, _) ->
     [V] = dict:fetch(H, Score),
@@ -101,6 +110,8 @@ best_step([H|Open], Score, Best, BestValue) ->
 	    best_step(Open, Score, Best, BestValue)
     end.
 
+%% @doc Creates a list of all the neighbouring tiles
+
 neighbour_nodes({X,Y}) ->
     NorthTile = {X,(Y+1)},
     NorthEastTile = {(X+1),(Y+1)},
@@ -112,24 +123,14 @@ neighbour_nodes({X,Y}) ->
     NorthWestTile = {(X-1),(Y+1)},
     [NorthTile,NorthEastTile,EastTile,SouthEastTile,SouthTile,SouthWestTile,WestTile,NorthWestTile].
 
+%% @doc Returns the distance between two tiles 
+
 dist_between({X1,Y1},{X2,Y2}) ->
     (abs((X2-X1))+abs((Y2-Y1))).
 
+%% @doc Returns the score between two tiles 
+
 h_score(ThisTile, Goal) ->
     (dist_between(ThisTile, Goal)*10).
-
-
-
-test_astar() ->    
-    Start = {1,6},
-    Goal = {10,6},
-    List = sets:new(),
-    astar(Start, Goal, map:create_map({0,0},{11,11},[{5,4},{5,5},{5,6},{5,7},{5,8}],List)).
-  
-
-main() ->
-    %%io:format("~p~n", ["HEJ"]),
-    test_astar().
-
 
 
