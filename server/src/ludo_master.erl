@@ -51,7 +51,9 @@ find_game_by_id_(#masterState{games=Games}, ServerID) ->
 
 broadcast(ServerID, Message) ->
 	Players = [PlayerPID || {_, PlayerPID} <- get_players_by_server_id(ServerID)],
-	[gen_server:cast(PlayerPID, {chat, Message}) || PlayerPID <- Players].
+ 	io:format("broadcast players ~p~n", [Players]),
+
+	[gen_server:cast(PlayerPID, Message) || PlayerPID <- Players].
 
 %% gen_server.
 init([]) ->

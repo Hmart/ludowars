@@ -122,7 +122,8 @@ compose({delete_entity, {EntityID}}) ->
 compose({update_entity, {EntityData}}) ->
     compose(6, composeEntity(EntityData));
 
-compose({chat_packet, {Text}}) ->
+compose(P = {chat_packet, {Text}}) ->
+    io:format("chat packet ~p~n", [P]),
     Length = string:len(Text),
     BinaryText = list_to_binary(Text),
     compose(7, <<Length:(8*2), BinaryText/binary>>);

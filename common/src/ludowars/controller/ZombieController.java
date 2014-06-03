@@ -23,8 +23,8 @@ import ludowars.model.CharacterData;
  *
  * @author Ignatio
  */
-public class PlayerController extends CharacterController {
-    public PlayerController() {
+public class ZombieController extends CharacterController {
+    public ZombieController() {
         super();
     }
     

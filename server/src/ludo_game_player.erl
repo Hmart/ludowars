@@ -54,9 +54,10 @@ init(ConnectionPID) ->
 alive(_Msg, State) ->
     {next_state, alive, State}.
 
-handle_packet({chat_packet, Text}, StateName, State) ->
+handle_packet({chat_packet, {Text}}, StateName, State) ->
   FormattedText = string:concat(io_lib:format("Player ~p: ", [State#playerState.id]), Text),
-  ludo_game_master:broadcast(0, {chat_packet, FormattedText}),
+  ludo_master:broadcast(0, {chat_packet, {FormattedText}}),
+  io:format("chat_packet ~p~n", [{chat_packet, {FormattedText}}]),
   {next_state, StateName, State};
 
 handle_packet({damage, {_Source, Target, Damage}}, StateName, State) ->
@@ -75,7 +76,7 @@ handle_packet({move_packet, DriverState}, StateName, State) ->
 handle_packet(_Packet, StateName, State) ->
   {next_state, StateName, State}.
 
-handle_event({packet, Packet}, StateName, State) ->
+handle_event(P = {packet, Packet}, StateName, State) ->
   handle_packet(Packet, StateName, State);
 
 handle_event(disconnect, StateName, State) ->
@@ -91,7 +92,9 @@ handle_sync_event(_Event, _From, StateName, State) ->
   Reply = ok,
   {reply, Reply, StateName, State}.
 
-handle_info({'$gen_cast', {chat, Msg}}, StateName, State) ->
+handle_info({'$gen_cast', {chat_packet, {Msg}}}, StateName, State) ->
+   io:format("gen_cast chat ~p~n", [{chat, Msg}]),
+
   send_packet(State, {chat_packet, {Msg}}),
   {next_state, StateName, State};
 

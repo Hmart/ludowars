@@ -27,7 +27,7 @@ public class PlayerRepresentation extends CharacterRepresentation {
     long healthChangeTime;
 
     public PlayerRepresentation() {
-        Texture temp = new Texture(Gdx.files.internal("assets/images/Players.png"));
+        Texture temp = new Texture(Gdx.files.internal("assets/images/Player.png"));
         this.handle = new SpriteSheet(temp, 32, 32);
         Texture temp2 = new Texture(Gdx.files.internal("assets/images/gravestone.png"));
         this.tombstone = new SpriteSheet(temp2, 32, 32);
