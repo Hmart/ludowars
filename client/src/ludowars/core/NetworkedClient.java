@@ -18,6 +18,7 @@ import ludowars.network.NetworkChannel;
 import ludowars.network.NetworkChannelHandler;
 import ludowars.network.packets.*;
 import ludowars.view.ControlledPlayerRepresentation;
+import ludowars.model.CharacterData;
 
 /**
  *
@@ -39,6 +40,8 @@ public class NetworkedClient {
         client.register(5, DeleteEntityPacket.class);
         client.register(6, UpdateEntityPacket.class);
         client.register(7, ChatPacket.class);
+        client.register(8, DamagePacket.class);
+        client.register(9, ChangeHealthPacket.class);
 
         client.addHandler(new NetworkChannelHandler() {
             @Override
@@ -48,7 +51,7 @@ public class NetworkedClient {
 
             @Override
             public void received(Packet p) {
-                System.out.println(p);
+             //System.out.println(p);
                 clientMessageQueue.add(p);
             }
         });
@@ -72,10 +75,10 @@ public class NetworkedClient {
             if (o instanceof StatePacket) {
                 StatePacket p = (StatePacket) o;
                 S = p.s;
-                System.out.println("entity count: " + p.s.entityManager.getCount());
+               //  System.out.println("entity count: " + p.s.entityManager.getCount());
             } else if (o instanceof AssignPacket) {
                 AssignPacket ap = (AssignPacket) o;
-                System.out.println(ap.id);
+               // System.out.println(ap.id);
                 S.localPlayer = S.entityManager.getEntity(ap.id);
                 S.localPlayer.setDriver(new PlayerDriver());
                 S.localPlayer.setRepresentation(new ControlledPlayerRepresentation());
@@ -89,6 +92,12 @@ public class NetworkedClient {
                 UpdateEntityPacket uep = (UpdateEntityPacket) o;
                 Entity e = S.entityManager.getEntity(uep.ed.id);
                 e.setData(uep.ed);
+            } else if (o instanceof ChangeHealthPacket){
+                ChangeHealthPacket chp = (ChangeHealthPacket) o;
+                Entity e = S.entityManager.getEntity(chp.id);    
+                CharacterData cd = (CharacterData)e.getData();
+                cd.health = chp.health;
+                             
             } else if (o instanceof MovePacket) {
                 MovePacket mp = (MovePacket) o;
                 Entity e = S.entityManager.getEntity(mp.entityID);  
@@ -134,7 +143,7 @@ public class NetworkedClient {
 
     public void connect() {
         client.connect("localhost", 7331);
-        //client.connect("130.238.246.63", 7331);
+        //client.connect("130.238.246.5", 7331);
         /*new Thread("Connect") {
          public void run() {
          if (!connectToServer()) {

@@ -121,6 +121,7 @@ handle_call({update_driver_state, DriverState}, _From, State) ->
 	{reply, ok, State};
 
 handle_call({update_entity_health, Entity}, _From, State) ->
+  	io:format("ludo_game_state:handle_call update_entity_health ~p~n", [Entity]),
 	notify(State, {health_updated, Entity#entity.id, Entity#entity.health}),
 	{reply, ok, State};
 

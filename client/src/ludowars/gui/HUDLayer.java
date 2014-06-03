@@ -23,6 +23,7 @@ import ludowars.gui.widgets.SpriteSheetView;
 import ludowars.model.CharacterData;
 import ludowars.model.State;
 import ludowars.network.NetworkChannelHandler;
+import ludowars.network.packets.ChangeHealthPacket;
 import ludowars.network.packets.ChatPacket;
 import ludowars.network.packets.Packet;
 import ludowars.view.SpriteSheet;
@@ -69,6 +70,7 @@ public class HUDLayer extends Layer {
                     ChatPacket cp = (ChatPacket)p;
                     chat.addLine(cp.text);
                 }
+
             }
 
             @Override

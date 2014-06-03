@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import ludowars.controller.CharacterController;
 import ludowars.controller.EntityDriverState;
 //import ludowars.controller.PlayerDriver;
-import ludowars.controller.ProjectileController;
 import ludowars.core.Entity;
 //import ludowars.core.GameListener;
 import ludowars.model.EntityData;
@@ -38,7 +37,7 @@ public class PlayerController extends CharacterController {
         data.angle = getMouseAngle();
         
         if (driverState.fireSecondary) {
-            System.out.println(driverState.fireSecondary);
+        //    System.out.println(driverState.fireSecondary);
             for(int i = 0; i < 12; i++) {
                 ProjectileData missile2 = new ProjectileData(entity.getData().position);
                 missile2.velocity.set(500f, 500f);
@@ -58,7 +57,7 @@ public class PlayerController extends CharacterController {
             }
         }
         if (driverState.fire) {
-            System.out.println(driverState.fire);
+          //  System.out.println(driverState.fire);
             ProjectileData missile = new ProjectileData(entity.getData().position);
             missile.velocity.set(500f, 500f);
             missile.velocity.setAngle(entity.getData().angle);
@@ -90,7 +89,7 @@ public class PlayerController extends CharacterController {
         if (!collidees.isEmpty()) {
             if (collidees.size() > 0) {
                 Entity e = collidees.get(0);
-                System.out.println("SINGLE COLLISION " + e.getBounds() + " " + entity.getBounds());
+          //     System.out.println("SINGLE COLLISION " + e.getBounds() + " " + entity.getBounds());
                 
 //                if (e.getBounds().x + e.getBounds().width <= data.position.x || entity.getBounds().x + entity.getBounds().width >= e.getBounds().x) {
 //                    data.position.x = oldPosition.x;

@@ -19,15 +19,15 @@ import ludowars.model.EntityData;
  *
  * @author IgnatioQ
  */
-public class PlayerRepresentation extends CharacterRepresentation {
+public class ZombieRepresentation extends CharacterRepresentation {
 
     SpriteSheet handle;
     SpriteSheet tombstone;
     float health;
     long healthChangeTime;
 
-    public PlayerRepresentation() {
-        Texture temp = new Texture(Gdx.files.internal("assets/images/Players.png"));
+    public ZombieRepresentation() {
+        Texture temp = new Texture(Gdx.files.internal("assets/images/zombie.png"));
         this.handle = new SpriteSheet(temp, 32, 32);
         Texture temp2 = new Texture(Gdx.files.internal("assets/images/gravestone.png"));
         this.tombstone = new SpriteSheet(temp2, 32, 32);

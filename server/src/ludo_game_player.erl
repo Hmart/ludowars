@@ -54,19 +54,20 @@ init(ConnectionPID) ->
 alive(_Msg, State) ->
     {next_state, alive, State}.
 
-handle_packet({damage, Source, Target, Damage}, StateName, State) ->
+handle_packet({damage, {Source, Target, Damage}}, StateName, State) ->
   TargetEntity = ludo_game_state:get_entity(State#playerState.statePID, Target),
+  io:format("ludo_game_player:handle_packet damage ~p~n", [TargetEntity]),
   case TargetEntity of
     not_found -> ok;
     #entity{pid=EntityPID} -> ludo_game_entity:change_health(EntityPID, Damage)
   end,
-  {next, StateName, State};
+  {next_state, StateName, State};
 
 handle_packet({move_packet, DriverState}, StateName, State) ->
   ludo_game_entity:process_driver_state(State#playerState.entityPID, DriverState),
   {next_state, StateName, State};
 
-handle_packet(_Packet, StateName, State) ->
+handle_packet(Packet, StateName, State) ->
   {next_state, StateName, State}.
 
 handle_event({packet, Packet}, StateName, State) ->

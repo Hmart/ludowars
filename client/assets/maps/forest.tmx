@@ -32,7 +32,7 @@
  </layer>
  <layer name="Ground" width="40" height="32">
   <data encoding="base64" compression="zlib">
-   eJzVmEtOwzAQhpNzQNlwC3YRrWDLAsEN6IMrFCqFLS1v1NJNu66AVS9QTsJJ+ltKpJHlcWzHkZ2RPk2VOJPJFztKkydJ8gDySPMreIs4h/Zj6m8NVhFl2d8LOAY9kAZE9PDM+CvHcFHuv3Q8N63D1U41/kz7q8M/c46MjKnrj9ZyQRx/Bm5AH5xb+hOMwR24BxOP/k6LfAWuSaZjqvx9gEcwBTPwpHBYh26RP5n9On+it3cwBwvwBZagA46YelzoevwGP+BX2m6yfm1x6Y8iP9NM5p/pPPfRn4xvf5Qd+AMbzfVU4cuf6v5sC1zvRdP+fODbn86nLU2s37b5q0vb/WWGdVTjLiz6UEVM/rj+Ypl/qgi9fumzh3uHC+mPhvwOl0bg7wAcghMwAEMwArdkjK2/zLEX1+Oq/IX+jxly/ukovaj8id8xher7S0zRlu9Xe6Xu69g=
+   eJzVmEtuwjAURZN18JmwC2ZRQXTKoIId0JZuoaVSmEL5V/1MyrhqO2ID7Uq6Eq6lRHoytmM7RnaedOQIO87lxI4CaRRFU5AG2q7BJuA2z8mO9+AjgFbkj/WFUiwj728FWqALYo+wDMtI7C8fI6u8/8ry2nQe2dyxwp9uvjL8S66RkDFl/dG5bGDn98AIXINLQ3+Me/AAJuDRob+LrB2AIWnpmCJ/OzADc/AEFgKHZehk7bOkX+WPZduCF/AK3sA7aICmZD5ZqTJ+gW/ww32us39NsclH4Z9pOutPd527yMfj2h/lF/yBT8X3KcKVP9H9OWTY3otz+3OBa38qn6acY/9WzV9Zqu4v0ZxHNK5vkENUIfmT5Qtl/YnK9/6lzx7ZO5xPf7T4d7g4AH81UAdtcANuwRjckTGm/hLLLLbnFfnz/RvT5/pTkXsR+WPHIRXvL/Ub56Sq8v/VERUt2nI=
   </data>
  </layer>
  <layer name="Roof" width="40" height="32">
@@ -58,16 +58,16 @@
   <object x="903" y="192" width="13" height="30"/>
   <object x="640" y="640" width="30" height="29"/>
   <object x="416" y="160" width="32" height="32"/>
-  <object x="64" y="96" width="1152" height="32"/>
+  <object x="33" y="61" width="1215" height="32"/>
   <object x="32" y="96" width="32" height="896"/>
   <object x="64" y="960" width="1152" height="32"/>
   <object x="1216" y="96" width="32" height="896"/>
   <object x="976" y="257" width="93" height="30"/>
   <object x="1005" y="224" width="33" height="33"/>
  </objectgroup>
- <layer name="ServerColliders" width="40" height="32" opacity="0">
+ <layer name="ServerColliders" width="40" height="32">
   <data encoding="base64" compression="zlib">
-   eJztl9EKwCAIRev/P2c/uKdgDEyZ1tV1D/gU2EkLsjXyd66eM55+2fD47TiP5reqviOX1Eu033sPKTfar0r9LGuS3+zNR7l97S+aU/2i7sKp9YuCfj7o52P1/yQyD6p+Mwf66WT202YglJ9lXkP6WaGfj2p+GaMCN67UfHU=
+   eJztmEEKwCAMBPOV/P+TvRah2ZYkutYdEAXBjFEUdTNz8sKK/HL81W/WnCI/f2hXxLzHRg6z/d7GR/3dfrvkD/Uj966z3Ic6cmDlRL/KvXBi/iqRXw755eg6XyrHWpk/dMfLL4bZb4zN4vflHb56fRHyyyG/HB1/YdXlAvBGGF4=
   </data>
  </layer>
 </map>

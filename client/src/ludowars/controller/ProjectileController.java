@@ -12,11 +12,14 @@ import ludowars.core.Entity;
 import ludowars.model.State;
 import ludowars.model.CharacterData;
 import ludowars.model.ProjectileData;
+import ludowars.network.packets.DamagePacket;
 
 /**
  *
  * @author kjagiello
  */
+import ludowars.controller.EntityController;
+import ludowars.core.NetworkedClient;
 public class ProjectileController extends EntityController {
    @Override
    public void update(State S, float delta) {
@@ -28,6 +31,14 @@ public class ProjectileController extends EntityController {
                if (getData().senderId != e.getID()) {
                    CharacterData d = (CharacterData) e.getData();
                    d.changeHealth(-getData().damage);                   
+                   DamagePacket dp = new DamagePacket();
+                   dp.damage = -getData().damage;
+                   dp.targetID = d.id;
+                   dp.sourceID = getData().senderId;   
+                   
+                   if(S.entityManager.getEntity(dp.sourceID) == S.localPlayer){
+                       NetworkedClient.getInstance().client.write(dp);   
+                   }   
                    
                    S.entityManager.removeEntity(entity.getID());
                    break;

@@ -83,6 +83,7 @@ public class StatePacket extends Packet {
             ed.angle = input.readFloat();
             ed.width = input.readInt();
             ed.height = input.readInt();
+            ed.health = input.readFloat();
            
             s.entityManager.createEntity(ed.id, ed);
                

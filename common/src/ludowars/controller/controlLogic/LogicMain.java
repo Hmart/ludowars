@@ -28,6 +28,15 @@ public class LogicMain {
                     e.getDriver().state.mousePosition = e.getDriver().state.mousePosition.cpy();
                     e.getData().position = e.getDriver().state.position.cpy();                
                 }
+                else {
+                    // reset the state
+                    e.getDriver().state.fire = false;
+                    e.getDriver().state.fireSecondary = false;
+                    e.getDriver().state.moveEast = false;
+                    e.getDriver().state.moveWest = false;
+                    e.getDriver().state.moveNorth = false;
+                    e.getDriver().state.moveSouth = false;                    
+                }
                 e.getDriver().refresh(camera);
             }
             

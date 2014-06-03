@@ -120,9 +120,9 @@ public class NetworkChannel {
                     currentPacket = inputBuffer.get();
                     packetLength = inputBuffer.getInt();
 
-                    System.out.println("CurrentPacket: " + currentPacket);
-                    System.out.println("PacketLength: " + packetLength);
-                    System.out.println("remaining: " + inputBuffer.remaining());
+          //          System.out.println("CurrentPacket: " + currentPacket);
+           //         System.out.println("PacketLength: " + packetLength);
+           //         System.out.println("remaining: " + inputBuffer.remaining());
                 }
 
                 if (inputBuffer.remaining() >= packetLength) {

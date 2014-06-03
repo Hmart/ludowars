@@ -3,7 +3,7 @@
 
 -export([start_link/1]).
 -export([init/1, handle_event/3, handle_sync_event/4, 
-        handle_info/3, terminate/3, code_change/4, wander/2, chase/2]).
+        handle_info/3, terminate/3, code_change/4, wander/2, chase/2, dead/2]).
 
 -include("include/records.hrl").
 
@@ -29,7 +29,7 @@ init(GamePID) ->
     ludo_game_state:subscribe(StatePID),
     Entity = ludo_game_state:add_entity(StatePID, #entity{
       controller = "ludowars.controller.PlayerController", %% controller name
-      representation = "ludowars.view.PlayerRepresentation", %% representation name
+      representation = "ludowars.view.ZombieRepresentation", %% representation name
       driver = "ludowars.controller.EntityDriver", %% driver name
       positionX = random:uniform(128) + 512 + 128.0, %% X
       positionY = random:uniform(128) + 512 + 128.0, %% Y
@@ -65,6 +65,9 @@ wander(_Msg, State) ->
       targetEntityID=TargetEntity#entity.id
     }}
   end.
+
+dead(_Msg, State) ->
+  {next_state, dead, State}.
 
 chase(_Msg, State) ->
   Entity = ludo_game_state:get_entity(State#npcState.statePID, State#npcState.entityID),
@@ -143,6 +146,15 @@ handle_event(Event, StateName, State) ->
 handle_sync_event(_Event, _From, StateName, State) ->
   Reply = ok,
   {reply, Reply, StateName, State}.
+
+handle_info({'$gen_cast', {health_updated, EntityID, EntityHealth}}, StateName, State)
+  when EntityID == State#npcState.entityID andalso EntityHealth =< 0.0 ->
+  timer:send_after(1000 * 10, death),
+  {next_state, dead, State};
+
+handle_info(death, StateName, State) -> 
+  ludo_game_state:delete_entity(State#npcState.statePID, State#npcState.entityID),
+  {next_state, StateName, State};
 
 handle_info(tick, StateName, State) -> 
   gen_fsm:send_event(self(), tick),

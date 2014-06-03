@@ -50,6 +50,7 @@ public class EntityPacket extends Packet {
         ed.angle = input.readFloat();
         ed.width = input.readInt();
         ed.height = input.readInt();
+        ed.health = input.readFloat();
     }
 
 }

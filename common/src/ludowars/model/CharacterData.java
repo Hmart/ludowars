@@ -13,7 +13,7 @@ import com.badlogic.gdx.math.Vector2;
  * @author Petter
  */
 public class CharacterData extends EntityData {
-    private float health;
+    public float health;
     public float maxHealth;
     public float maxSpeed;
     

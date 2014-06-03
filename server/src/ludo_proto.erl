@@ -63,7 +63,7 @@ parse(7, Payload) ->
     {chat_packet, {binary_to_list(Text)}};
 
 parse(8, Payload) ->
-    <<Damage:(8*4), Source:(8*4), Target:(8*4)>> = Payload,
+    <<Damage:(8*4)/float, Target:(8*4), Source:(8*4)>> = Payload,
     {damage, {Source, Target, Damage}}.
 
 composeEntity(#entity{
