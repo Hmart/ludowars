@@ -133,7 +133,7 @@ handle_call({find_entity_by_id, EntityID}, _From, State) ->
 	end,
 	{reply, FoundEntity, State};
 
-handle_call({get_entities_in_range, X, Y, R}, _From, State) ->
+handle_call({get_entities_in_range, _X, _Y, _R}, _From, _State) ->
 	tbi;
 
 handle_call({get_closest_entity, X, Y, R, E}, _From, State) ->

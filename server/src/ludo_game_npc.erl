@@ -108,7 +108,7 @@ chase(_Msg, State) ->
           {TileX, TileY} = case Fire of 
             1 ->
               case Path of
-                [H|[H2|_T]] -> H2;
+                [_H|[H2|_T]] -> H2;
                 _ -> ludo_game_entity:tile_position(Entity)
               end;
             _ -> ludo_game_entity:tile_position(Entity)
@@ -118,10 +118,10 @@ chase(_Msg, State) ->
           TargetX = TileX * 32 + 16,
           TargetY = TileY * 32 + 16,
 
-          North = trunc(max(TargetY - CurrentY, 1.0)),
-          South = trunc(max(CurrentY - TargetY, 1.0)),
-          West = trunc(max(CurrentX - TargetX, 1.0)),
-          East = trunc(max(TargetX - CurrentX, 1.0)),
+          _North = trunc(max(TargetY - CurrentY, 1.0)),
+          _South = trunc(max(CurrentY - TargetY, 1.0)),
+          _West = trunc(max(CurrentX - TargetX, 1.0)),
+          _East = trunc(max(TargetX - CurrentX, 1.0)),
 
           ludo_game_entity:process_driver_state(State#npcState.entityPID, #driverState{
             entityID=Entity#entity.id,
@@ -140,14 +140,14 @@ chase(_Msg, State) ->
       end
   end.
 
-handle_event(Event, StateName, State) ->
+handle_event(_Event, StateName, State) ->
   {next_state, StateName, State}.
 
 handle_sync_event(_Event, _From, StateName, State) ->
   Reply = ok,
   {reply, Reply, StateName, State}.
 
-handle_info({'$gen_cast', {health_updated, EntityID, EntityHealth}}, StateName, State)
+handle_info({'$gen_cast', {health_updated, EntityID, EntityHealth}}, _StateName, State)
   when EntityID == State#npcState.entityID andalso EntityHealth =< 0.0 ->
   timer:send_after(1000 * 10, death),
   {next_state, dead, State};
@@ -160,7 +160,7 @@ handle_info(tick, StateName, State) ->
   gen_fsm:send_event(self(), tick),
   {next_state, StateName, State};
 
-handle_info(Info, StateName, State) ->
+handle_info(_Info, StateName, State) ->
   {next_state, StateName, State}.
 
 terminate(_Reason, _StateName, _State) ->

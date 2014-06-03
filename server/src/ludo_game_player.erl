@@ -54,7 +54,12 @@ init(ConnectionPID) ->
 alive(_Msg, State) ->
     {next_state, alive, State}.
 
-handle_packet({damage, {Source, Target, Damage}}, StateName, State) ->
+handle_packet({chat_packet, Text}, StateName, State) ->
+  FormattedText = string:concat(io_lib:format("Player ~p: ", [State#playerState.id]), Text),
+  ludo_game_master:broadcast(0, {chat_packet, FormattedText}),
+  {next_state, StateName, State};
+
+handle_packet({damage, {_Source, Target, Damage}}, StateName, State) ->
   TargetEntity = ludo_game_state:get_entity(State#playerState.statePID, Target),
   io:format("ludo_game_player:handle_packet damage ~p~n", [TargetEntity]),
   case TargetEntity of
@@ -67,7 +72,7 @@ handle_packet({move_packet, DriverState}, StateName, State) ->
   ludo_game_entity:process_driver_state(State#playerState.entityPID, DriverState),
   {next_state, StateName, State};
 
-handle_packet(Packet, StateName, State) ->
+handle_packet(_Packet, StateName, State) ->
   {next_state, StateName, State}.
 
 handle_event({packet, Packet}, StateName, State) ->
@@ -85,6 +90,10 @@ handle_event(Event, StateName, State) ->
 handle_sync_event(_Event, _From, StateName, State) ->
   Reply = ok,
   {reply, Reply, StateName, State}.
+
+handle_info({'$gen_cast', {chat, Msg}}, StateName, State) ->
+  send_packet(State, {chat_packet, {Msg}}),
+  {next_state, StateName, State};
 
 handle_info({'$gen_cast', {subscribed, GameState}}, StateName, State) ->
   send_packet(State, {state_packet, {GameState}}),

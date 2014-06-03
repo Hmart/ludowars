@@ -2,7 +2,7 @@
 -include_lib("eunit/include/eunit.hrl").
 
 createDummyData(X, Count) ->
-    iolist_to_binary([<<X:(8*1)>> || Y <- lists:seq(1,Count)]).
+    iolist_to_binary([<<X:(8*1)>> || _ <- lists:seq(1,Count)]).
 
 createDummyEntity(ID) ->
     iolist_to_binary([<<ID:(8*4)>>,
