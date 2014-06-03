@@ -11,7 +11,8 @@
 	set_position/3,
 	process_driver_state/2,
 	distance/2,
-	tile_position/1
+	tile_position/1,
+	change_health/2
 ]).
 
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
@@ -30,6 +31,14 @@ delete_entity(EntityPID) ->
 
 update_entity(EntityPID, Entity) ->
 	gen_server:call(EntityPID, {update_entity, Entity}).
+
+change_health(EntityPID, Health) ->
+	Entity = get_entity(EntityPID),
+	Entity2 = Entity#entity{
+		health=Entity#entity.health + Health
+	},
+	gen_server:call(EntityPID, {update_entity_health, Entity2}),
+	Entity2.
 
 get_entity_id(EntityPID) ->
 	Entity = get_entity(EntityPID),
@@ -85,6 +94,10 @@ handle_call({update_entity, UpdatedEntity}, _From, Entity) ->
 handle_call({update_driver_state, DriverState}, _From, Entity) ->
 	ludo_game_state:update_driver_state(Entity#entity.statePID, DriverState),
 	{reply, ok, Entity};
+
+handle_call({update_entity_health, UpdatedEntity}, _From, Entity) ->
+	ludo_game_state:update_entity_health(Entity#entity.statePID, UpdatedEntity),
+	{reply, ok, UpdatedEntity};
 
 handle_call(Request, _From, Entity) ->
 	io:format("entity handle_call: ~p~n", [Request]),

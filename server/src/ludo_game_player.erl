@@ -36,7 +36,8 @@ init(ConnectionPID) ->
       velocityY = 0.0, %% velocity Y
       angle = 0.0, %% angle
       width = 16, %% width
-      height = 10 %% height
+      height = 10, %% height
+      health = 150.0
     }),
     EntityPID = Entity#entity.pid,
     EntityID = Entity#entity.id,
@@ -52,6 +53,14 @@ init(ConnectionPID) ->
 
 alive(_Msg, State) ->
     {next_state, alive, State}.
+
+handle_packet({damage, Source, Target, Damage}, StateName, State) ->
+  TargetEntity = ludo_game_state:get_entity(State#playerState.statePID, Target),
+  case TargetEntity of
+    not_found -> ok;
+    #entity{pid=EntityPID} -> ludo_game_entity:change_health(EntityPID, Damage)
+  end,
+  {next, StateName, State};
 
 handle_packet({move_packet, DriverState}, StateName, State) ->
   ludo_game_entity:process_driver_state(State#playerState.entityPID, DriverState),
@@ -98,6 +107,11 @@ handle_info({'$gen_cast', {updated_driver_state, DriverState}}, StateName, State
   when DriverState#driverState.entityID =/= State#playerState.entityID ->
   %io:format("driver state for ~p ~p~n", [DriverState#driverState.entityID, DriverState]),
   send_packet(State, {move_packet, DriverState}),
+  {next_state, StateName, State};
+
+handle_info({'$gen_cast', {health_updated, EntityID, EntityHealth}}, StateName, State) ->
+  %io:format("driver state for ~p ~p~n", [DriverState#driverState.entityID, DriverState]),
+  send_packet(State, {update_health, EntityID, EntityHealth}),
   {next_state, StateName, State};
 
 handle_info(_Info, StateName, State) ->

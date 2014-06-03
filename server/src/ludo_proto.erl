@@ -19,7 +19,7 @@ parseEntity(EntityCount, EntityList, Acc) ->
         velocityY = VelocityY, 
         angle = Angle, 
         width = Width, 
-        height = Height 
+        height = Height
     },
     parseEntity(EntityCount-1, EntityRest, [EntityElement|Acc]).
 
@@ -60,7 +60,11 @@ parse(2, Payload) ->
 
 parse(7, Payload) ->
     <<_Length:(8*2), Text/binary>> = Payload,
-    {chat_packet, {binary_to_list(Text)}}.
+    {chat_packet, {binary_to_list(Text)}};
+
+parse(8, Payload) ->
+    <<Damage:(8*4), Source:(8*4), Target:(8*4)>> = Payload,
+    {damage, {Source, Target, Damage}}.
 
 composeEntity(#entity{
         id = ID, 
@@ -73,11 +77,12 @@ composeEntity(#entity{
         velocityY = VelocityY, 
         angle = Angle, 
         width = Width, 
-        height = Height}) ->
+        height = Height,
+        health = Health}) ->
     ControllerClassNameString = list_to_binary(string:left(ControllerClassName, 256, $\0)),
     RepresentationClassNameString = list_to_binary(string:left(RepresentationClassName, 256, $\0)),
     DriverClassNameString = list_to_binary(string:left(DriverClassName, 256, $\0)),
-    <<ID:(8*4), ControllerClassNameString/binary, RepresentationClassNameString/binary, DriverClassNameString/binary, X:(8*4)/float, Y:(8*4)/float, VelocityX:(8*4)/float, VelocityY:(8*4)/float, Angle:(8*4)/float, Width:(8*4), Height:(8*4)>>.
+    <<ID:(8*4), ControllerClassNameString/binary, RepresentationClassNameString/binary, DriverClassNameString/binary, X:(8*4)/float, Y:(8*4)/float, VelocityX:(8*4)/float, VelocityY:(8*4)/float, Angle:(8*4)/float, Width:(8*4), Height:(8*4), Health:(8*4)/float>>.
 
 composeEntityList(Entities) ->
     lists:map(fun(X) -> composeEntity(X) end, Entities).
@@ -129,4 +134,7 @@ compose({state_packet, {#state{
         worldBoundsHeight = Height,
         entities = Entities}}}) ->
     Temp = composeEntityList(Entities),
-    compose(3, [<<X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, (length(Temp)):(8*2)>>, Temp]).
+    compose(3, [<<X:(8*4)/float, Y:(8*4)/float, Width:(8*4)/float, Height:(8*4)/float, (length(Temp)):(8*2)>>, Temp]);
+
+compose({update_health, EntityID, EntityHealth}) ->
+    compose(9, <<EntityID:(8*4), EntityHealth:(8*4)/float>>).

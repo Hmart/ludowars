@@ -19,6 +19,7 @@
 	angle, 
 	width, 
 	height,
+	health,
 	pid,
 	statePID
 }).

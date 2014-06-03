@@ -37,7 +37,8 @@ init(GamePID) ->
       velocityY = 0.0, %% velocity Y
       angle = 0.0, %% angle
       width = 16, %% width
-      height = 10 %% height
+      height = 10, %% height
+      health = 150.0
     }),
     EntityPID = Entity#entity.pid,
     EntityID = Entity#entity.id,
