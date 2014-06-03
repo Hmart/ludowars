@@ -11,7 +11,8 @@
 	set_position/3,
 	process_driver_state/2,
 	distance/2,
-	tile_position/1
+	tile_position/1,
+	change_health/2
 ]).
 
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
