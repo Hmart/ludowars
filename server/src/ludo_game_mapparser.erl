@@ -73,3 +73,6 @@ make_map([H|Rest], ClosedList, Count) ->
     end.
 
 
+main()->
+     make_map(jsonParser(),sets:new(),0).
+
