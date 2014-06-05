@@ -1,7 +1,13 @@
+%%% @doc Ludo gameserver, This module defines a gameserver.
+%%% @end
+
 -module(ludo_game_server).
 -behaviour(gen_server).
 
+%% API
 -export([start_link/0, get_state_server/1, get_unix_time/0]). %% API.
+
+%% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
 
 -include("include/records.hrl").
@@ -12,12 +18,31 @@
 }).
 
 %% API.
+
+%% @doc Starts the server.
+%%
+%% @spec start_link() -> {ok, Pid}
+%% where
+%%	Pid = pid()
+%% @end
 start_link() ->
 	gen_server:start_link(?MODULE, [], []).
 
+%% @doc returns the pid to the stateserver.
+%%
+%% @spec get_state_server(GamePID::pid()) -> {ok, statePID}
+%% where
+%%	statePID = pid()
+%% @end
 get_state_server(GamePID) ->
 	gen_server:call(GamePID, get_state_pid).
 
+%% @doc Starts the server.
+%%
+%% @spec get_unix_time() -> time
+%% where
+%%	time::long()
+%% @end
 get_unix_time() ->
 	{M, S, _} = erlang:now(),
 	M * 1000000 + S.

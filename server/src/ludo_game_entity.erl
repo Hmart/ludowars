@@ -1,3 +1,6 @@
+%%% @doc game entity, This module defines an Entity.
+%%% @end
+
 -module(ludo_game_entity).
 -behaviour(gen_server).
 
@@ -15,23 +18,49 @@
 	change_health/2
 ]).
 
+%% gen_Server
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
 
 -include("include/records.hrl").
 
 %% Public API.
+
+%% @doc Starts the server.
+%%
+%% @spec start_link(Entity) -> {ok, Pid}
+%% where
+%%	Pid = pid()
+%% @end
 start_link(Entity) ->
 	gen_server:start_link(?MODULE, [Entity], []).
 
+%% @doc Returns the entity connected to the EntityPID.
+%%
+%% @spec get_entity(EntityPID::pid()) -> {ok, Pid}
+%% where
+%%	Pid = pid()
+%% @end
 get_entity(EntityPID) ->
 	gen_server:call(EntityPID, get_state).
 
+%% @doc Deletes an entity.
+%%
+%% @spec delete_entity(EntityPID::pid()) -> ok
+%% @end
 delete_entity(EntityPID) ->
 	gen_server:call(EntityPID, delete_entity).
 
+%% @doc Updates an entity.
+%%
+%% @spec update_entity(EntityPID::pid(), Entity) -> ok
+%% @end
 update_entity(EntityPID, Entity) ->
 	gen_server:call(EntityPID, {update_entity, Entity}).
 
+%% @doc Changes the health of an entity.
+%%
+%% @spec change_health(EntityPID::pid(), Health::float()) -> ok
+%% @end
 change_health(EntityPID, Health) ->
 	Entity = get_entity(EntityPID),
 	Entity2 = Entity#entity{
@@ -40,10 +69,20 @@ change_health(EntityPID, Health) ->
 	gen_server:call(EntityPID, {update_entity_health, Entity2}),
 	Entity2.
 
+%% @doc Returns the id connected to an entity.
+%%
+%% @spec get_entity_id(EntityPID::pid()) -> Entity#entity.id
+%% where
+%%	Entity#entity.id = integer()
+%% @end
 get_entity_id(EntityPID) ->
 	Entity = get_entity(EntityPID),
 	Entity#entity.id.
 
+%% @doc Sets the position of an entity.
+%%
+%% @spec set_position(EntityPID::pid(), PosX::interger(), PosY::integer()) -> ok
+%% @end
 set_position(EntityPID, PosX, PosY) ->
 	Entity = get_entity(EntityPID),
 	Entity2 = Entity#entity{
@@ -53,6 +92,10 @@ set_position(EntityPID, PosX, PosY) ->
 	update_entity(EntityPID, Entity2),
 	Entity2.
 
+%% @doc Updates an entity with a driverstate.
+%%
+%% @spec process_driver_state(EntityPID::pid(), DriverState) -> ok
+%% @end
 process_driver_state(EntityPID, DriverState) ->
 	#driverState{
 		positionX=X,
@@ -61,6 +104,12 @@ process_driver_state(EntityPID, DriverState) ->
 	set_position(EntityPID, X, Y),
 	gen_server:call(EntityPID, {update_driver_state, DriverState}).
 
+%% @doc Returns the distance between two entities.
+%%
+%% @spec distance(Entity1, Entity2) -> float()
+%% where
+%% 	distance::float().
+%% @end
 distance(Entity1, Entity2) ->
 	ludo_game_state:distance(
 		Entity1#entity.positionX,
@@ -69,6 +118,10 @@ distance(Entity1, Entity2) ->
 		Entity2#entity.positionY
 	).
 
+%% @doc Returns the tileposition of an entity.
+%%
+%% @spec tile_position(Entity) -> {::integer(),::integer()}
+%% @end
 tile_position(Entity) ->
 	{round(Entity#entity.positionX) div 32, round(Entity#entity.positionY) div 32}.
 

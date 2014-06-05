@@ -1,10 +1,15 @@
+%%% @doc Ludo masterserver, This module defines a masterserver.
+%%% @end
 
 -module(ludo_master).
 -behaviour(gen_server).
 
+%% API
 -export([start_link/0, stop/0, register_game/0, register_player/1, find_game_by_id/1, find_player_by_id/1,
-	find_player_by_pid/1, broadcast/2]). %% API.
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
+	find_player_by_pid/1, broadcast/2]).
+
+%% gen_server callbacks
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
 
@@ -18,30 +23,77 @@
 }).
 
 %% API.
+
+%% @doc Starts the server.
+%%
+%% @spec start_link() -> {ok, Pid}
+%% where
+%%	Pid = pid()
+%% @end
 start_link() ->
 	gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
+%% @doc Stops the server.
+%% @spec stop() -> ok
+%% @end
 stop() ->
 	gen_server:call(?SERVER, stop).
 
+%% @doc Registers a gameserver.
+%% @spec register_game() -> {ok, serverID}
+%% where
+%%  serverID = integer()
+%% @end
 register_game() ->
 	gen_server:call(?SERVER, {register_game, self()}).
 
+%% @doc Registers a player.
+%% @spec register_player(ServerID::integer()) -> {ok, {PlayerID, ServerPID}}
+%% where
+%%	PlayerID = integer()
+%%  ServerPID = pid()
+%% @end
 register_player(ServerID) ->
 	gen_server:call(?SERVER, {register_player, self(), ServerID}).
 
+%% @doc Returns all players on a specific gameserver.
+%% @spec get_players_by_server_id(ServerID::interger()) -> {ok, Players}
+%% where
+%%	Players = list()
+%% @end
 get_players_by_server_id(ServerID) ->
 	gen_server:call(?SERVER, {players_by_server_id, ServerID}).
+
+%% @spec find_game_by_id(ServerID::integer()) -> {ok, ServerPID}
+%% where
+%%	serverPID = pid()
+%% @doc Calls `find_game_by_id_(ServerID)'.
 
 find_game_by_id(ServerID) ->
 	gen_server:call(?SERVER, {find_game_by_id, ServerID}).
 
+%% @doc Returns the playerPID and ServerPID connected to the PlayerID.
+%% @spec find_player_by_id(PlayerID::integer()) -> {ok, {PlayerPID, ServerPID}}
+%% where
+%% PlayerPID = pid()
+%% ServerPID = pid()
+%% @end
 find_player_by_id(PlayerID) ->
 	gen_server:call(?SERVER, {find_player_by_id, PlayerID}).
 
+%% @doc Returns the playerID connected to the playerPID.
+%% @spec find_player_by_pid(PlayerPID::pid()) -> {ok, PlayerID}
+%% where
+%%	PlayerPID = pid()
+%% @end
 find_player_by_pid(PlayerPID) ->
 	gen_server:call(?SERVER, {find_player_by_pid, PlayerPID}).
 
+%% @doc Returns the playerID connected to the playerPID.
+%% @spec find_player_by_id_(#masterState::record(), ServerID::integer()) -> {ok, ServerPID}
+%% where
+%%	ServerPID = pid()
+%% @end
 find_game_by_id_(#masterState{games=Games}, ServerID) ->
 	L = lists:keyfind(ServerID, 1, Games),
 	case L of 
@@ -49,13 +101,16 @@ find_game_by_id_(#masterState{games=Games}, ServerID) ->
 		{_, ServerPID} -> ServerPID
 	end.
 
+%% @doc Broadcasts a message to all players connected to a server.
+%% @spec broadcast(serverID::integer(), Message) -> ok
+%% @end
 broadcast(ServerID, Message) ->
 	Players = [PlayerPID || {_, PlayerPID} <- get_players_by_server_id(ServerID)],
  	io:format("broadcast players ~p~n", [Players]),
 
 	[gen_server:cast(PlayerPID, Message) || PlayerPID <- Players].
 
-%% gen_server.
+%% gen_server callbacks.
 init([]) ->
 	{ok, #masterState{}}.
 
