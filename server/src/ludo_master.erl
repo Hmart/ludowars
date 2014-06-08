@@ -87,7 +87,7 @@ find_player_by_pid(PlayerPID) ->
 	gen_server:call(?SERVER, {find_player_by_pid, PlayerPID}).
 
 %% @doc Returns the playerID connected to the playerPID.
-%% @spec find_player_by_id_(MasterState, ServerID::integer()) -> {ok, ServerPID}
+%% @spec find_game_by_id_(MasterState, ServerID::integer()) -> {ok, ServerPID}
 %% where
 %%	ServerPID = pid()
 %% @end
