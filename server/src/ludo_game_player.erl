@@ -17,16 +17,9 @@
 }).
 
 
-%% @doc Sends a packet.
-%%
-%% @spec send_packet() -> ok
 send_packet(State, Packet) ->
   ludo_game_connection:send_packet(State#playerState.connectionPID, Packet).
 
-
-%% @doc Starts a player process
-%%
-%% @spec stat_link(ConnectionPID::pid()) -> {ok, PlayerPID::pid())
 start_link(ConnectionPID) ->
     gen_fsm:start_link(?MODULE, ConnectionPID, []).
 
