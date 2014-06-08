@@ -62,9 +62,8 @@ register_player(ServerID) ->
 get_players_by_server_id(ServerID) ->
 	gen_server:call(?SERVER, {players_by_server_id, ServerID}).
 
-%% @spec find_game_by_id(ServerID::integer()) -> {ok, ServerPID}
-%% where
-%%	serverPID = pid()
+%% @spec find_game_by_id(ServerID::integer()) -> {ok, ServerPID::pid()}
+%% @end
 %% @doc Calls `find_game_by_id_(ServerID)'.
 
 find_game_by_id(ServerID) ->
@@ -73,8 +72,8 @@ find_game_by_id(ServerID) ->
 %% @doc Returns the playerPID and ServerPID connected to the PlayerID.
 %% @spec find_player_by_id(PlayerID::integer()) -> {ok, {PlayerPID, ServerPID}}
 %% where
-%% PlayerPID = pid()
-%% ServerPID = pid()
+%% 	PlayerPID = pid()
+%% 	ServerPID = pid()
 %% @end
 find_player_by_id(PlayerID) ->
 	gen_server:call(?SERVER, {find_player_by_id, PlayerID}).
