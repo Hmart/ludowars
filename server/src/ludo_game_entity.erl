@@ -71,9 +71,7 @@ change_health(EntityPID, Health) ->
 
 %% @doc Returns the id connected to an entity.
 %%
-%% @spec get_entity_id(EntityPID::pid()) -> Entity#entity.id
-%% where
-%%	Entity#entity.id = integer()
+%% @spec get_entity_id(EntityPID::pid()) -> EntityID::integer()
 %% @end
 get_entity_id(EntityPID) ->
 	Entity = get_entity(EntityPID),
