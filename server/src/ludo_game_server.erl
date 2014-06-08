@@ -39,7 +39,7 @@ get_state_server(GamePID) ->
 
 %% @doc Returns the unix epoch time
 %%
-%% @spec get_unix_time() -> TimeÖ::integer()
+%% @spec get_unix_time() -> Time::integer()
 %% @end
 get_unix_time() ->
 	{M, S, _} = erlang:now(),
