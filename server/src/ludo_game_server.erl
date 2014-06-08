@@ -39,9 +39,9 @@ get_state_server(GamePID) ->
 
 %% @doc Starts the server.
 %%
-%% @spec get_unix_time() -> time
+%% @spec get_unix_time() -> Time
 %% where
-%%	time::long()
+%%	Time::long()
 %% @end
 get_unix_time() ->
 	{M, S, _} = erlang:now(),
