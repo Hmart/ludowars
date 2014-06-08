@@ -87,7 +87,7 @@ find_player_by_pid(PlayerPID) ->
 	gen_server:call(?SERVER, {find_player_by_pid, PlayerPID}).
 
 %% @doc Returns the playerID connected to the playerPID.
-%% @spec find_player_by_id_(#masterState::record(), ServerID::integer()) -> {ok, ServerPID}
+%% @spec find_player_by_id_(MasterState, ServerID::integer()) -> {ok, ServerPID}
 %% where
 %%	ServerPID = pid()
 %% @end
@@ -99,7 +99,7 @@ find_game_by_id_(#masterState{games=Games}, ServerID) ->
 	end.
 
 %% @doc Broadcasts a message to all players connected to a server.
-%% @spec broadcast(serverID::integer(), Message) -> ok
+%% @spec broadcast(ServerID::integer(), Message) -> ok
 %% @end
 broadcast(ServerID, Message) ->
 	Players = [PlayerPID || {_, PlayerPID} <- get_players_by_server_id(ServerID)],
