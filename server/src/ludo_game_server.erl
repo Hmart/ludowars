@@ -30,9 +30,9 @@ start_link() ->
 
 %% @doc returns the pid to the stateserver.
 %%
-%% @spec get_state_server(GamePID::pid()) -> {ok, statePID}
+%% @spec get_state_server(GamePID::pid()) -> {ok, StatePID}
 %% where
-%%	statePID = pid()
+%%	StatePID = pid()
 %% @end
 get_state_server(GamePID) ->
 	gen_server:call(GamePID, get_state_pid).
