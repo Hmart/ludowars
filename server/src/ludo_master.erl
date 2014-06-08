@@ -91,7 +91,8 @@ find_player_by_pid(PlayerPID) ->
 %% where
 %%	ServerPID = pid()
 %% @end
-find_game_by_id_(#masterState{games=Games}, ServerID) ->
+find_game_by_id_(MasterState, ServerID) ->
+	#masterState{games=Games} = MasterState,
 	L = lists:keyfind(ServerID, 1, Games),
 	case L of 
 		false -> undefined;
