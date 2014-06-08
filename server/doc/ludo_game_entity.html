@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Module ludo_game_entity</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module ludo_game_entity</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>game entity, This module defines an Entity.
+
+<p><b>Behaviours:</b> <a href="gen_server.html"><tt>gen_server</tt></a>.</p>
+
+<h2><a name="description">Description</a></h2>game entity, This module defines an Entity.
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#change_health-2">change_health/2</a></td><td>Changes the health of an entity.</td></tr>
+<tr><td valign="top"><a href="#code_change-3">code_change/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#delete_entity-1">delete_entity/1</a></td><td>Deletes an entity.</td></tr>
+<tr><td valign="top"><a href="#distance-2">distance/2</a></td><td>Returns the distance between two entities.</td></tr>
+<tr><td valign="top"><a href="#get_entity-1">get_entity/1</a></td><td>Returns the entity connected to the EntityPID.</td></tr>
+<tr><td valign="top"><a href="#get_entity_id-1">get_entity_id/1</a></td><td>Returns the id connected to an entity.</td></tr>
+<tr><td valign="top"><a href="#handle_call-3">handle_call/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#handle_cast-2">handle_cast/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#handle_info-2">handle_info/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#init-1">init/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#process_driver_state-2">process_driver_state/2</a></td><td>Updates an entity with a driverstate.</td></tr>
+<tr><td valign="top"><a href="#set_position-3">set_position/3</a></td><td>Sets the position of an entity.</td></tr>
+<tr><td valign="top"><a href="#start_link-1">start_link/1</a></td><td>Starts the server.</td></tr>
+<tr><td valign="top"><a href="#terminate-2">terminate/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#tile_position-1">tile_position/1</a></td><td>Returns the tileposition of an entity.</td></tr>
+<tr><td valign="top"><a href="#update_entity-2">update_entity/2</a></td><td>Updates an entity.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="change_health-2">change_health/2</a></h3>
+<div class="spec">
+<p><tt>change_health(EntityPID::pid(), Health::float()) -&gt; ok</tt><br></p>
+</div><p>Changes the health of an entity.
+ </p>
+
+<h3 class="function"><a name="code_change-3">code_change/3</a></h3>
+<div class="spec">
+<p><tt>code_change(OldVsn, Entity, Extra) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="delete_entity-1">delete_entity/1</a></h3>
+<div class="spec">
+<p><tt>delete_entity(EntityPID::pid()) -&gt; ok</tt><br></p>
+</div><p>Deletes an entity.
+ </p>
+
+<h3 class="function"><a name="distance-2">distance/2</a></h3>
+<div class="spec">
+<p><tt>distance(Entity1, Entity2) -&gt; Distance::float()</tt><br></p>
+</div><p>Returns the distance between two entities.
+ </p>
+
+<h3 class="function"><a name="get_entity-1">get_entity/1</a></h3>
+<div class="spec">
+<p><tt>get_entity(EntityPID::pid()) -&gt; {ok, Pid}</tt>
+<ul class="definitions"><li><tt>Pid = pid()</tt></li></ul></p>
+</div><p>Returns the entity connected to the EntityPID.
+ </p>
+
+<h3 class="function"><a name="get_entity_id-1">get_entity_id/1</a></h3>
+<div class="spec">
+<p><tt>get_entity_id(EntityPID::pid()) -&gt; EntityID::integer()</tt><br></p>
+</div><p>Returns the id connected to an entity.
+ </p>
+
+<h3 class="function"><a name="handle_call-3">handle_call/3</a></h3>
+<div class="spec">
+<p><tt>handle_call(Request, From, Entity) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="handle_cast-2">handle_cast/2</a></h3>
+<div class="spec">
+<p><tt>handle_cast(Msg, Entity) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="handle_info-2">handle_info/2</a></h3>
+<div class="spec">
+<p><tt>handle_info(Info, Entity) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="init-1">init/1</a></h3>
+<div class="spec">
+<p><tt>init(X1) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="process_driver_state-2">process_driver_state/2</a></h3>
+<div class="spec">
+<p><tt>process_driver_state(EntityPID::pid(), DriverState) -&gt; ok</tt><br></p>
+</div><p>Updates an entity with a driverstate.
+ </p>
+
+<h3 class="function"><a name="set_position-3">set_position/3</a></h3>
+<div class="spec">
+<p><tt>set_position(EntityPID::pid(), PosX::<a href="#type-interger">interger()</a>, PosY::integer()) -&gt; ok</tt><br></p>
+</div><p>Sets the position of an entity.
+ </p>
+
+<h3 class="function"><a name="start_link-1">start_link/1</a></h3>
+<div class="spec">
+<p><tt>start_link(Entity) -&gt; {ok, Pid}</tt>
+<ul class="definitions"><li><tt>Pid = pid()</tt></li></ul></p>
+</div><p>Starts the server.
+ </p>
+
+<h3 class="function"><a name="terminate-2">terminate/2</a></h3>
+<div class="spec">
+<p><tt>terminate(Reason, Entity) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="tile_position-1">tile_position/1</a></h3>
+<div class="spec">
+<p><tt>tile_position(Entity) -&gt; {TileX::integer(), TileY::integer()}</tt><br></p>
+</div><p>Returns the tileposition of an entity.
+ </p>
+
+<h3 class="function"><a name="update_entity-2">update_entity/2</a></h3>
+<div class="spec">
+<p><tt>update_entity(EntityPID::pid(), Entity) -&gt; ok</tt><br></p>
+</div><p>Updates an entity.
+ </p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Jun 8 2014, 19:05:33.</i></p>
+</body>
+</html>

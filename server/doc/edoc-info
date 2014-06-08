@@ -1,0 +1,9 @@
+%% encoding: UTF-8
+{application,ludowars}.
+{packages,[]}.
+{modules,[a_star,a_star_tests,ludo_app,ludo_game_connection,
+          ludo_game_connection_sup,ludo_game_entity,ludo_game_mapparser,
+          ludo_game_npc,ludo_game_pathfinding,ludo_game_pathfinding_tests,
+          ludo_game_player,ludo_game_server,ludo_game_state,ludo_game_sup,
+          ludo_master,ludo_proto,ludo_proto_tests,ludo_sup,map,mochijson2,
+          mochijson_ludo,test_mochijson2]}.
