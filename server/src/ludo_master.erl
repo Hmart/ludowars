@@ -40,9 +40,7 @@ stop() ->
 	gen_server:call(?SERVER, stop).
 
 %% @doc Registers a gameserver.
-%% @spec register_game() -> {ok, serverID}
-%% where
-%%  serverID = integer()
+%% @spec register_game() -> {ok, ServerID::integer()}
 %% @end
 register_game() ->
 	gen_server:call(?SERVER, {register_game, self()}).
@@ -57,7 +55,7 @@ register_player(ServerID) ->
 	gen_server:call(?SERVER, {register_player, self(), ServerID}).
 
 %% @doc Returns all players on a specific gameserver.
-%% @spec get_players_by_server_id(ServerID::interger()) -> {ok, Players}
+%% @spec get_players_by_server_id(ServerID::integer()) -> {ok, Players}
 %% where
 %%	Players = list()
 %% @end
