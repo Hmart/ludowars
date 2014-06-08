@@ -104,9 +104,7 @@ process_driver_state(EntityPID, DriverState) ->
 
 %% @doc Returns the distance between two entities.
 %%
-%% @spec distance(Entity1, Entity2) -> float()
-%% where
-%% 	distance::float().
+%% @spec distance(Entity1, Entity2) -> Distance::float()
 %% @end
 distance(Entity1, Entity2) ->
 	ludo_game_state:distance(
@@ -118,7 +116,7 @@ distance(Entity1, Entity2) ->
 
 %% @doc Returns the tileposition of an entity.
 %%
-%% @spec tile_position(Entity) -> {::integer(),::integer()}
+%% @spec tile_position(Entity) -> {TileX::integer(), TileY::integer()}
 %% @end
 tile_position(Entity) ->
 	{round(Entity#entity.positionX) div 32, round(Entity#entity.positionY) div 32}.
