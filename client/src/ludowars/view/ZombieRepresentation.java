@@ -25,10 +25,13 @@ public class ZombieRepresentation extends CharacterRepresentation {
     SpriteSheet tombstone;
     float health;
     long healthChangeTime;
+        private boolean fire;
+    private long lastFire;
+    public int fireAnimationDelay = 100;
 
     public ZombieRepresentation() {
-        Texture temp = new Texture(Gdx.files.internal("assets/images/zombie.png"));
-        this.handle = new SpriteSheet(temp, 32, 32);
+        Texture temp = new Texture(Gdx.files.internal("assets/images/ZombieB.png"));
+        this.handle = new SpriteSheet(temp, 128, 128);
         Texture temp2 = new Texture(Gdx.files.internal("assets/images/gravestone.png"));
         this.tombstone = new SpriteSheet(temp2, 32, 32);
     }
@@ -44,14 +47,42 @@ public class ZombieRepresentation extends CharacterRepresentation {
         super.update();
         
         CharacterData data = getData();
+        
         float sx = data.position.x;
         float sy = data.position.y;
         Vector3 sv = new Vector3((float) sx, (float) sy, 0f);
-        if(data.getHealth() > 0){
-            batch.draw(handle.grabSprite(moveAnimationFrame, data.getCakeSlice()), sx - 10, sy - 6);
-        }else{
-            batch.draw(tombstone.grabSprite(0, 0), sx - 10, sy - 6);
+        if (data.getHealth() > 0) {
+        if (data.velocity.len() == 0f) {
+                Animationlength = 4;
+                
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastFire > 150) {
+                fire = false;
+                lastFire = currentTime;
+            }
+             if(entity.getDriver().state.fire){
+                    fire = true;
+                    lastFire = currentTime;
+             }
+ 
+             if(fire){
+             batch.draw(handle.grabSprite(moveAnimationFrame + 12, data.getCakeSlice()), sx - 10, sy - 6); 
+            } else {
+                batch.draw(handle.grabSprite(moveAnimationFrame, data.getCakeSlice()), sx - 10, sy - 6);             
+            }
         }
+            else {
+            Animationlength = 8;
+               batch.draw(handle.grabSprite(moveAnimationFrame+4, data.getCakeSlice()), sx - 10, sy - 6);
+ 
+            }
+        } else {
+            Animationlength = 6;
+            if(moveAnimationFrame == 5)       
+               moveAnimationDelay = 100000;
+
+            batch.draw(handle.grabSprite(moveAnimationFrame + 22, data.getCakeSlice()), sx - 10, sy - 6);
+            }
         
         batch.end();
         
@@ -82,15 +113,12 @@ public class ZombieRepresentation extends CharacterRepresentation {
         
         float healthWidth = data.getHealth() / data.maxHealth * 40;
         
-        s.begin(ShapeRenderer.ShapeType.Filled);
-        s.setColor(Color.valueOf("FFAA00"));
-        s.rect(sv.x - 12 - 4, sv.y + 36, 40, 8);
-        s.end();
+
 
         if (data.getHealth() > 0) {
             s.begin(ShapeRenderer.ShapeType.Filled);
             s.setColor(Color.RED);
-            s.rect(sv.x - 12 + 2 - 4, sv.y + 36 + 2, healthWidth - 4, 8 - 4);
+            s.rect(sv.x+40, sv.y + 80, healthWidth - 4, 8 - 4);
             s.end();
         }
     }

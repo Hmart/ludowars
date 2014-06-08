@@ -2,7 +2,7 @@
 -behaviour(gen_server).
 
 -export([start_link/0, add_entity/2, delete_entity/2, update_entity/2, 
-		get_entity/2,get_entities_in_range/4, get_closest_entity/4, get_state/1, subscribe/1, subscribe/2,
+		get_entity/2,get_entities_in_range/4, get_closest_entity/4, get_closest_player/5, get_state/1, subscribe/1, subscribe/2,
 		unsubscribe/1, unsubscribe/2, update_driver_state/2, distance/4, get_closest_entity/5,
 		update_entity_health/2]). %% API.
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). %% gen_server.
@@ -36,6 +36,9 @@ get_entities_in_range(StatePID, X, Y, R) ->
 	gen_server:call(StatePID, {find_entities_in_range, X, Y, R}).
 
 get_closest_entity(StatePID, X, Y, R, E) ->
+	gen_server:call(StatePID, {get_closest_entity, X, Y, R, E}).
+
+get_closest_player(StatePID, X, Y, R, E) ->
 	gen_server:call(StatePID, {get_closest_entity, X, Y, R, E}).
 
 get_closest_entity(StatePID, X, Y, R) ->
@@ -143,6 +146,19 @@ handle_call({get_closest_entity, X, Y, R, E}, _From, State) ->
 		[] -> not_found;
 		[Entity|_T] -> Entity
 	end,
+	{reply, FoundEntity, State};
+
+handle_call({get_closest_player, X, Y, R, E}, _From, State) ->
+	Players = ludo_master:players_by_server_id(0),
+	L = [Entity || Entity = #entity{id=ID, positionX=PositionX, positionY=PositionY} <- State#state.entities, 
+	R >= distance(X, Y, PositionX, PositionY), E#entity.id =/= ID],
+	FoundEntity = case L of
+		[] -> not_found;
+		[Entity|_T] -> Entity
+	end,
+
+
+
 	{reply, FoundEntity, State};
 
 handle_call(get_state, _From, State) ->

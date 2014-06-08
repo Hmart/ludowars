@@ -19,6 +19,7 @@ public class CharacterRepresentation extends EntityRepresentation {
     private long moveAnimationTimer;
     public int moveAnimationDelay = 100;
     public static final int CHARACTER_IDLE_ANIMATION = 0;
+    public int Animationlength=1;
     
     public CharacterRepresentation() {
         super();
@@ -29,13 +30,12 @@ public class CharacterRepresentation extends EntityRepresentation {
         long currentTime = System.currentTimeMillis();
 
         if ((currentTime - moveAnimationTimer) > moveAnimationDelay) {
-            moveAnimationFrame = ++moveAnimationFrame % 3;
+            moveAnimationFrame = ++moveAnimationFrame % Animationlength;
             moveAnimationTimer = currentTime;
         }
         
-        if (entity.getData().velocity.len() == 0f)
-            moveAnimationFrame = 0;
     }
+
 
     @Override
     public void render(ludowars.model.State S, SpriteBatch batch, ShapeRenderer sr, com.badlogic.gdx.graphics.OrthographicCamera camera) {

@@ -59,15 +59,16 @@ public class PlayerController extends CharacterController {
         if (driverState.fire) {
           //  System.out.println(driverState.fire);
             ProjectileData missile = new ProjectileData(entity.getData().position);
-            missile.velocity.set(500f, 500f);
+            missile.velocity.set(375f, 375f);
             missile.velocity.setAngle(entity.getData().angle);
             missile.velocity.add(entity.getData().velocity);
             missile.senderId = entity.getID();
             missile.damage = 10;
-            missile.width = 8;
-            missile.height = 8;
+            missile.width = 30;
+            missile.height = 30;
             missile.controller = "ludowars.controller.ProjectileController";
-            missile.representation = "ludowars.view.LudoRepresentation";
+            missile.representation = "ludowars.view.SpellRepresentation";
+            missile.angle = this.getMouseAngle();
 
             S.entityManager.createLocalEntity(missile);
 

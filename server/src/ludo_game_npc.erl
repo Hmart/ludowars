@@ -25,14 +25,16 @@ start_link(GamePID) ->
     gen_fsm:start_link(?MODULE, GamePID, []).
 
 init(GamePID) ->
+    {A1,A2,A3} = now(),
+    random:seed(A1, A2, A3),
     StatePID = ludo_game_server:get_state_server(GamePID),
     ludo_game_state:subscribe(StatePID),
     Entity = ludo_game_state:add_entity(StatePID, #entity{
       controller = "ludowars.controller.ZombieController", %% controller name
       representation = "ludowars.view.ZombieRepresentation", %% representation name
       driver = "ludowars.controller.EntityDriver", %% driver name
-      positionX = random:uniform(128) + 512 + 128.0, %% X
-      positionY = random:uniform(128) + 512 + 128.0, %% Y
+      positionX = random:uniform(1000) +128.0, %% X
+      positionY = random:uniform(1000) +128.0, %% Y
       velocityX = 0.0, %% velocity X
       velocityY = 0.0, %% velocity Y
       angle = 0.0, %% angle
@@ -57,7 +59,8 @@ init(GamePID) ->
 
 wander(_Msg, State) ->
   Entity = ludo_game_state:get_entity(State#npcState.statePID, State#npcState.entityID),
-  TargetEntity = ludo_game_state:get_closest_entity(State#npcState.statePID, Entity#entity.positionX, Entity#entity.positionY, 500, Entity),
+  TargetEntity = ludo_game_state:get_closest_player(State#npcState.statePID, Entity#entity.positionX, Entity#entity.positionY, 500, Entity),
+  io:format("TargetEntity:  ~p~n", [TargetEntity]),
   case TargetEntity of 
     not_found -> {next_state, wander, State};
     _ -> {next_state, chase, State#npcState{

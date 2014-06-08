@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
+import ludowars.controller.EntityDriverState;
 import ludowars.model.CharacterData;
 import ludowars.model.EntityData;
 
@@ -26,11 +27,13 @@ public class PlayerRepresentation extends CharacterRepresentation {
     float health;
     long healthChangeTime;
 
+    private boolean delay;
+    private long lastFire;
+    public int fireAnimationDelay = 100;
+
     public PlayerRepresentation() {
-        Texture temp = new Texture(Gdx.files.internal("assets/images/Players.png"));
-        this.handle = new SpriteSheet(temp, 32, 32);
-        Texture temp2 = new Texture(Gdx.files.internal("assets/images/gravestone.png"));
-        this.tombstone = new SpriteSheet(temp2, 32, 32);
+        Texture temp = new Texture(Gdx.files.internal("assets/images/PlayerB.png"));
+        this.handle = new SpriteSheet(temp, 128, 128);
     }
 
     @Override
@@ -42,32 +45,39 @@ public class PlayerRepresentation extends CharacterRepresentation {
     @Override
     public void render(ludowars.model.State S, SpriteBatch batch, ShapeRenderer sr, com.badlogic.gdx.graphics.OrthographicCamera camera) {
         super.update();
-        
+
         CharacterData data = getData();
         float sx = data.position.x;
         float sy = data.position.y;
         Vector3 sv = new Vector3((float) sx, (float) sy, 0f);
-        if(data.getHealth() > 0){
-            batch.draw(handle.grabSprite(moveAnimationFrame, data.getCakeSlice()), sx - 10, sy - 6);
-        }else{
-            batch.draw(tombstone.grabSprite(0, 0), sx - 10, sy - 6);
+        if (data.getHealth() > 0) {
+            if (data.velocity.len() == 0f) {
+                Animationlength = 4;
+                batch.draw(handle.grabSprite(moveAnimationFrame, data.getCakeSlice()), sx - 10, sy - 6);
+            } else {
+                Animationlength = 8;
+                batch.draw(handle.grabSprite(moveAnimationFrame + 4, data.getCakeSlice()), sx - 10, sy - 6);
+            }
+        } else {
+            Animationlength = 8;
+            if (moveAnimationFrame == 7) {
+                moveAnimationDelay = 100000;
+            }
+            batch.draw(handle.grabSprite(moveAnimationFrame + 16, data.getCakeSlice()), sx - 10, sy - 6);
         }
-        
         batch.end();
-        
+
         if (data.getHealth() < health && healthChangeTime + 500 < System.currentTimeMillis()) {
             Sound s = Gdx.audio.newSound(Gdx.files.internal("assets/sounds/grunt.wav"));
             s.play(0.1f);
         }
-        
+
         if (data.getHealth() != health) {
             healthChangeTime = System.currentTimeMillis();
         }
-        
+
         health = data.getHealth();
-        
-        
-        
+
         if (healthChangeTime + 2000 > System.currentTimeMillis()) {
             drawHealth(sr, sv, data);
         }
@@ -77,20 +87,16 @@ public class PlayerRepresentation extends CharacterRepresentation {
     }
 
     public void drawHealth(ShapeRenderer s, Vector3 sv, CharacterData data) {
-        if (data.getHealth() <= 0)
+        if (data.getHealth() <= 0) {
             return;
-        
+        }
+
         float healthWidth = data.getHealth() / data.maxHealth * 40;
-        
-        s.begin(ShapeRenderer.ShapeType.Filled);
-        s.setColor(Color.valueOf("FFAA00"));
-        s.rect(sv.x - 12 - 4, sv.y + 36, 40, 8);
-        s.end();
 
         if (data.getHealth() > 0) {
             s.begin(ShapeRenderer.ShapeType.Filled);
             s.setColor(Color.RED);
-            s.rect(sv.x - 12 + 2 - 4, sv.y + 36 + 2, healthWidth - 4, 8 - 4);
+            s.rect(sv.x + 40, sv.y + 80, healthWidth - 4, 8 - 4);
             s.end();
         }
     }

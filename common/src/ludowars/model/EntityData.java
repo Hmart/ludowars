@@ -48,4 +48,19 @@ public class EntityData implements java.io.Serializable {
     public Rectangle getBounds() {
         return new Rectangle(position.x, position.y, width, height);
     }
+        public int getCakeSlice() {
+        float angle = this.angle;
+        if (angle > 360 - 22.5 || angle <= 22.5) {
+            return 4;
+        }
+
+        for (int i = 0; i < 7; i++) {
+            double tmp = i * 45.0;
+            if (angle > (22.5 + tmp) && angle <= (67.5 + tmp)) {
+                return (i + 5) %8;
+            }
+        }
+
+        return 0;
+    }
 }
