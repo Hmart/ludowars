@@ -37,11 +37,9 @@ start_link() ->
 get_state_server(GamePID) ->
 	gen_server:call(GamePID, get_state_pid).
 
-%% @doc Starts the server.
+%% @doc Returns the unix epoch time
 %%
-%% @spec get_unix_time() -> Time
-%% where
-%%	Time::long()
+%% @spec get_unix_time() -> TimeÖ::integer()
 %% @end
 get_unix_time() ->
 	{M, S, _} = erlang:now(),
